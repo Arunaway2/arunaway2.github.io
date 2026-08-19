@@ -99,6 +99,532 @@
     border-radius:0;
     background:#0c0c0c;
     font-family:'Varela Round',Arial,ui-sans-serif,sans-serif;
+    position:relative;
+  }
+  .bio-greeting{color:var(--muted);font-size:1.3rem;font-weight:400;margin-bottom:16px}
+  .bio-body{margin:0;color:var(--muted);font-size:1.3rem;line-height:1.6}
+  .scroll{
+    position:absolute;left:50%;bottom:90px;transform:translateX(-50%);
+    color:#f5f2ec;font-size:1.4rem;line-height:1;
+    animation:blink 1s ease-in-out infinite;
+  }
+  @keyframes blink{
+    0%,100%{opacity:.15}
+    50%{opacity:1}
+  }
+
+  main, nav, footer{position:relative;z-index:5}
+  section{padding:115px 0}
+  .label{font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+  h2{font-size:clamp(2.4rem,6vw,4.5rem);letter-spacing:-.07em;line-height:.95;margin:0 0 35px}
+
+  .projects{display:grid;gap:12px}
+  .project{
+    display:grid;grid-template-columns:55px 1fr;align-items:center;gap:18px;
+    padding:23px 25px;border:1px solid var(--line);border-radius:4px;
+    background:#101010;
+    position:relative;
+  }
+  .num{color:#8a867f;font-size:.75rem}
+  .project h3{margin:0 0 5px;font-size:1.12rem}
+  .project p{margin:0;color:var(--muted);font-size:.9rem}
+
+  .exp{display:grid;gap:12px}
+  .exp-item{
+    padding:23px 25px;border:1px solid var(--line);border-radius:4px;
+    background:#101010;
+    position:relative;
+  }
+  .exp-head{display:flex;flex-wrap:wrap;align-items:flex-start;gap:8px;margin-bottom:6px}
+  .exp-item h3{margin:0;font-size:1.12rem}
+  .exp-role{color:var(--accent);font-size:.85rem}
+  .exp-date{color:#a5a19a;font-size:.8rem;white-space:nowrap;margin-left:auto;margin-top:.2em}
+  .exp-sub{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:10px}
+  .exp-loc{color:#a5a19a;font-size:.8rem;white-space:nowrap}
+  .exp-item p{margin:0;color:var(--muted);font-size:.9rem;line-height:1.5}
+
+  .skill-group{
+    margin-bottom:18px;
+    padding:26px 28px;
+    border:1px solid var(--line);
+    border-radius:4px;
+    background:#101010;
+    position:relative;
+  }
+  .skill-group:last-child{margin-bottom:0}
+  .skill-cat{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+  .skills{display:flex;flex-wrap:wrap;gap:9px;max-width:850px}
+  .skill{
+    padding:9px 13px;border:1px solid var(--line);border-radius:4px;
+    color:#d6d2ca;background:#101010;font-size:.85rem
+  }
+
+  footer{padding:60px 0 90px;color:#8a867f;border-top:1px solid var(--line);font-size:.8rem}
+
+  /* Rocket boosters — 2 per block, mounted on the left and right edges.
+     Each booster has a flame at BOTH ends (top and bottom) so it can thrust
+     in either direction — the correct end fires depending on scroll direction.
+     Cartoon-style jagged flame, animated with a wobble; length/color scale
+     with scroll speed. */
+  .boosters{position:absolute;inset:0;pointer-events:none;z-index:2}
+  .booster{
+    position:absolute;
+    top:50%;transform:translateY(-50%);
+    width:9px;height:26px;
+    background:linear-gradient(180deg,
+      #9a968e 0%, #9a968e 12%,
+      #c0392b 12%, #c0392b 20%,
+      #9a968e 20%, #9a968e 80%,
+      #c0392b 80%, #c0392b 88%,
+      #9a968e 88%, #9a968e 100%);
+    border:1px solid rgba(0,0,0,.5);
+  }
+  .booster.edge-left{left:-26px}
+  .booster.edge-right{right:-26px}
+  /* Strut connecting the booster body to the block's edge */
+  .booster .strut{
+    position:absolute;top:50%;height:3px;
+    background:linear-gradient(90deg,#5c5850,#8f8b84);
+    transform:translateY(-50%);
+  }
+  .booster.edge-left .strut{left:100%;width:18px}
+  .booster.edge-right .strut{right:100%;width:18px}
+  /* Cartoon flame — pointed at the nozzle, flaring into a flickering double-lobed base.
+     Fixed base size + uniform scale keeps proportions consistent; size scales with speed.
+     The clip-path itself is animated between several silhouettes, so the flame genuinely
+     morphs shape as it burns, and a hot white inner core dances inside it. */
+  .booster .flame-bottom,
+  .booster .flame-top{
+    position:absolute;left:50%;
+    width:16px;height:22px;
+    transform:translateX(-50%) scale(var(--thrust-scale,.4));
+    opacity:0;
+    box-shadow:0 0 14px 3px var(--thrust-color,var(--accent));
+    transition:opacity .12s linear,transform .1s ease-out,background .1s linear,box-shadow .1s linear;
+  }
+  /* Hot inner core — smaller, brighter flame dancing inside the outer one */
+  .booster .flame-bottom::after,
+  .booster .flame-top::after{
+    content:"";position:absolute;left:50%;
+    width:8px;height:12px;
+    background:rgba(255,255,240,.95);
+    transform:translateX(-50%);
+  }
+  .booster .flame-bottom::after{
+    top:0;
+    clip-path:polygon(50% 0%,20% 45%,38% 100%,50% 78%,62% 100%,80% 45%);
+    animation:core-dance .11s ease-in-out infinite alternate;
+  }
+  .booster .flame-top::after{
+    bottom:0;
+    clip-path:polygon(50% 100%,20% 55%,38% 0%,50% 22%,62% 0%,80% 55%);
+    animation:core-dance .11s ease-in-out infinite alternate;
+  }
+  @keyframes core-dance{
+    0%{transform:translateX(-56%) scaleY(.85)}
+    100%{transform:translateX(-44%) scaleY(1.12)}
+  }
+  .booster .flame-bottom{
+    top:100%;
+    transform-origin:top center;
+    clip-path:polygon(50% 0%,22% 38%,0% 52%,14% 100%,50% 86%,86% 100%,100% 52%,78% 38%);
+    background:linear-gradient(to bottom,var(--thrust-color,var(--accent)) 40%,transparent);
+    }
+  .booster .flame-top{
+    bottom:100%;
+    transform-origin:bottom center;
+    clip-path:polygon(50% 100%,22% 62%,0% 48%,14% 0%,50% 14%,86% 0%,100% 48%,78% 62%);
+    background:linear-gradient(to top,var(--thrust-color,var(--accent)) 40%,transparent);
+  }
+  /* Morphing silhouettes — same vertex count so the browser interpolates smoothly */
+  @keyframes morph-down{
+    0%{clip-path:polygon(50% 0%,22% 38%,0% 52%,14% 100%,50% 86%,86% 100%,100% 52%,78% 38%)}
+    33%{clip-path:polygon(50% 0%,28% 32%,4% 60%,22% 92%,50% 100%,74% 88%,96% 46%,70% 40%)}
+    66%{clip-path:polygon(50% 0%,18% 44%,2% 44%,10% 88%,50% 96%,90% 92%,98% 58%,80% 30%)}
+    100%{clip-path:polygon(50% 0%,26% 30%,6% 56%,18% 100%,50% 82%,82% 96%,94% 50%,74% 44%)}
+  }
+  @keyframes morph-up{
+    0%{clip-path:polygon(50% 100%,22% 62%,0% 48%,14% 0%,50% 14%,86% 0%,100% 48%,78% 62%)}
+    33%{clip-path:polygon(50% 100%,28% 68%,4% 40%,22% 8%,50% 0%,74% 12%,96% 54%,70% 60%)}
+    66%{clip-path:polygon(50% 100%,18% 56%,2% 56%,10% 12%,50% 4%,90% 8%,98% 42%,80% 70%)}
+    100%{clip-path:polygon(50% 100%,26% 70%,6% 44%,18% 0%,50% 18%,82% 4%,94% 50%,74% 56%)}
+  }
+  @keyframes wobble{
+    0%{transform:translateX(-50%) scale(var(--thrust-scale,.4)) scaleY(.86) skewX(-5deg)}
+    28%{transform:translateX(-50%) scale(var(--thrust-scale,.4)) scaleY(1.12) skewX(4deg)}
+    55%{transform:translateX(-50%) scale(var(--thrust-scale,.4)) scaleY(.92) skewX(-3deg)}
+    100%{transform:translateX(-50%) scale(var(--thrust-scale,.4)) scaleY(1.08) skewX(5deg)}
+  }
+  /* Scrolling down: every booster fires its bottom flame — wobble + shape morph together. */
+  body.scroll-down .booster .flame-bottom{
+    opacity:1;
+    animation:wobble .15s ease-in-out infinite alternate,
+              morph-down .34s linear infinite alternate;
+  }
+  /* Scrolling up: every booster fires its top flame. */
+  body.scroll-up .booster .flame-top{
+    opacity:1;
+    animation:wobble .15s ease-in-out infinite alternate,
+              morph-up .34s linear infinite alternate;
+  }
+
+  @media(max-width:700px){
+    .nav-contact{gap:14px}
+    .wrap{width:min(100% - 28px,1050px)}
+    section{padding:85px 0}
+    .project{grid-template-columns:35px 1fr}
+    .hero h1{font-size:clamp(2.1rem,9vw,3.2rem)}
+    .bio-greeting{font-size:1.05rem}
+    .bio-body{font-size:1.05rem}
+    .boosters{display:none}
+  }
+</style>
+</head>
+<body>
+<div class="stars"></div>
+
+<nav>
+  <div class="wrap nav">
+    <div class="nav-contact">
+      <a href="mailto:arunaway@berkeley.edu">Email</a>
+      <a href="https://linkedin.com/in/arunaabhay" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="https://github.com/Arunaway2" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </div>
+</nav>
+
+<main>
+  <section class="hero">
+    <div class="wrap">
+      <div class="label"></div>
+      <div class="bio-bubble">
+        <div class="bio-greeting">Hi,</div>
+        <p class="bio-body">
+          My name is <strong>Arunaabha Yadavalli</strong>, and I am a senior at UC Berkeley studying EECS and Mechanical Engineering. I am interested in robotics, backend development, and AI. Currently learning how to write GPU kernels for Machine Learning.
+        </p>
+      </div>
+      <div class="scroll">↓</div>
+    </div>
+  </section>
+
+  <section id="experience">
+    <div class="wrap">
+      <h2>Experience</h2>
+      <div class="exp">
+        <article class="exp-item">
+          <div class="exp-head">
+            <h3>Amazon Web Services — AWS Core Networking</h3>
+            <span class="exp-date">May 2025 – Aug 2025</span>
+          </div>
+          <div class="exp-sub">
+            <div class="exp-role">Software Development Engineer Intern</div>
+            <div class="exp-loc">Seattle, WA</div>
+          </div>
+          <p>Refactored a traffic-forecasting API to pull in new timeseries sources, meaningfully improving forecast accuracy, and built a Jupyter dashboard monitoring load balancers to speed up on-call capacity checks.</p>
+        </article>
+        <article class="exp-item">
+          <div class="exp-head">
+            <h3>UC Berkeley — ME 132 Feedback Controls, ME 40 Thermodynamics</h3>
+            <span class="exp-date">Jun 2024 – Dec 2024</span>
+          </div>
+          <div class="exp-sub">
+            <div class="exp-role">Teaching Staff (Grader)</div>
+            <div class="exp-loc">Berkeley, CA</div>
+          </div>
+          <p>Graded a large volume of assignments and exams across two engineering courses serving many undergraduates.</p>
+        </article>
+        <article class="exp-item">
+          <div class="exp-head">
+            <h3>Berkeley Hybrid Robotics Lab</h3>
+            <span class="exp-date">Sep 2022 – Dec 2023</span>
+          </div>
+          <div class="exp-sub">
+            <div class="exp-role">Undergraduate Researcher</div>
+            <div class="exp-loc">Berkeley, CA</div>
+          </div>
+          <p>Built an optimal LQR controller for a Unitree A1 quadruped, modeling it as an inverted pendulum to achieve a one-legged handstand.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="skills">
+    <div class="wrap">
+      <h2>Skills</h2>
+      <div class="skill-group">
+        <div class="skill-cat">Languages</div>
+        <div class="skills">
+          <span class="skill">Python</span><span class="skill">C</span><span class="skill">C++</span><span class="skill">Rust</span>
+          <span class="skill">Go</span><span class="skill">OCaml</span><span class="skill">Java</span><span class="skill">Bash</span>
+          <span class="skill">gRPC</span><span class="skill">x86</span><span class="skill">RISC-V</span>
+          <span class="skill">Kotlin</span><span class="skill">Julia</span>
+        </div>
+      </div>
+      <div class="skill-group">
+        <div class="skill-cat">Cloud Services / AWS Tools</div>
+        <div class="skills">
+          <span class="skill">S3</span><span class="skill">Lambda</span><span class="skill">DynamoDB</span>
+          <span class="skill">IAM</span><span class="skill">Glue</span><span class="skill">EC2</span>
+          <span class="skill">CloudFormation</span><span class="skill">CloudWatch</span>
+        </div>
+      </div>
+      <div class="skill-group">
+        <div class="skill-cat">AI / ML / LLM</div>
+        <div class="skills">
+          <span class="skill">PyTorch</span><span class="skill">TensorFlow</span><span class="skill">JAX</span>
+          <span class="skill">Numpy</span><span class="skill">CUDA</span><span class="skill">Pandas</span>
+          <span class="skill">CVXPY</span><span class="skill">scikit-learn</span><span class="skill">Hugging Face</span>
+          <span class="skill">Semantic Kernel</span><span class="skill">LangChain</span><span class="skill">cuTile</span>
+        </div>
+      </div>
+      <div class="skill-group">
+        <div class="skill-cat">Robotics</div>
+        <div class="skills">
+          <span class="skill">ROS2</span><span class="skill">MuJoCo</span><span class="skill">Isaac Sim</span>
+          <span class="skill">Isaac Lab</span><span class="skill">OpenCV</span><span class="skill">CasADi</span>
+          <span class="skill">Acados</span>
+        </div>
+      </div>
+      <div class="skill-group">
+        <div class="skill-cat">Web Development</div>
+        <div class="skills">
+          <span class="skill">React</span><span class="skill">HTML</span><span class="skill">CSS</span>
+          <span class="skill">REST API</span><span class="skill">Node</span><span class="skill">JWT Tokens</span>
+          <span class="skill">Spring</span><span class="skill">MongoDB</span><span class="skill">Tomcat</span>
+          <span class="skill">VueJS</span><span class="skill">SQL</span>
+        </div>
+      </div>
+      <div class="skill-group">
+        <div class="skill-cat">Systems / Infrastructure</div>
+        <div class="skills">
+          <span class="skill">Docker</span><span class="skill">Kubernetes</span><span class="skill">Spark</span>
+          <span class="skill">Kafka</span><span class="skill">Flink</span><span class="skill">MapReduce</span>
+          <span class="skill">Git</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="projects">
+    <div class="wrap">
+      <h2>Projects</h2>
+      <div class="projects">
+        <article class="project">
+          <div class="num">01</div><div><h3>Competitive Deep RL Autonomous Drone Racer</h3><p>PPO reinforcement learning, MPC, and CMPCC controllers racing drones in NVIDIA Isaac Sim, achieving a top lap time and ranking first in safety on A2RL's 2025 track.</p></div>
+        </article>
+        <article class="project">
+          <div class="num">02</div><div><h3>MapReduce</h3><p>Distributed MapReduce system in Rust and gRPC with a coordinator that splits jobs across workers and auto-reassigns work from crashed ones.</p></div>
+        </article>
+        <article class="project">
+          <div class="num">03</div><div><h3>Pintos Operating System</h3><p>OS kernel with thread and file syscalls, strict priority scheduling, a buffer cache, and an extensible inode file system.</p></div>
+        </article>
+        <article class="project">
+          <div class="num">04</div><div><h3>Sports Pulse</h3><p>Android sports-news app pulling live headlines from numerous RSS feeds across many sports, built with Kotlin, Jetpack Compose, MVVM, Hilt, and Retrofit.</p></div>
+        </article>
+        <article class="project">
+          <div class="num">05</div><div><h3>BropDoX</h3><p>Secure Go file-sharing app letting users store, edit, and share documents under a hybrid RSA + encrypt-then-MAC encryption scheme.</p></div>
+        </article>
+        <article class="project">
+          <div class="num">06</div><div><h3>GripAAAA</h3><p>ROS2 robot that autonomously detects, navigates to, grasps, and delivers wooden cubes from a source to a home base.</p></div>
+        </article>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">© 2026 Arunaabha Yadavalli</div>
+</footer>
+<script>
+(function(){
+  var root = document.documentElement;
+  var ticking = false;
+  function updateStars(){
+    root.style.setProperty('--star-shift', window.scrollY + 'px');
+    ticking = false;
+  }
+  window.addEventListener('scroll', function(){
+    if(!ticking){
+      requestAnimationFrame(updateStars);
+      ticking = true;
+    }
+  }, {passive:true});
+})();
+
+(function(){
+  // Attach 2 rocket boosters per block — left edge (fixed downward thrust)
+  // and right edge (fixed upward thrust) — the opposing pair fires depending
+  // on scroll direction.
+  var blocks = document.querySelectorAll('.exp-item, .project, .bio-bubble, .skill-group');
+  function addBoosters(block){
+    var wrap = document.createElement('div');
+    wrap.className = 'boosters';
+    ['edge-left','edge-right'].forEach(function(side){
+      var b = document.createElement('div');
+      b.className = 'booster ' + side;
+      var strut = document.createElement('div');
+      strut.className = 'strut';
+      var flameBottom = document.createElement('div');
+      flameBottom.className = 'flame-bottom';
+      var flameTop = document.createElement('div');
+      flameTop.className = 'flame-top';
+      b.appendChild(strut);
+      b.appendChild(flameBottom);
+      b.appendChild(flameTop);
+      wrap.appendChild(b);
+    });
+    block.appendChild(wrap);
+  }
+  blocks.forEach(addBoosters);
+
+  // Track scroll direction and speed so the correct boosters fire,
+  // with flame length AND color proportional to how fast the page is scrolling:
+  // orange (slow) -> blue (medium) -> white (fastest).
+  var lastY = window.scrollY;
+  var lastT = performance.now();
+  var body = document.body;
+  var dirTicking = false;
+  var idleTimer = null;
+  var MIN_SCALE = 0.4, MAX_SCALE = 1.7, MAX_SPEED = 0.36; // px per ms — half as sensitive as before
+  var COLOR_SLOW = [255,140,20];   // vivid orange
+  var COLOR_MID  = [30,140,255];   // vivid blue
+  var COLOR_FAST = [255,255,255];  // white
+  function lerpChannel(a,b,t){ return a + (b - a) * t; }
+  function thrustColor(ratio){
+    var c1, c2, t;
+    if(ratio < .5){
+      c1 = COLOR_SLOW; c2 = COLOR_MID; t = ratio / .5;
+    } else {
+      c1 = COLOR_MID; c2 = COLOR_FAST; t = (ratio - .5) / .5;
+    }
+    var r = Math.round(lerpChannel(c1[0], c2[0], t));
+    var g = Math.round(lerpChannel(c1[1], c2[1], t));
+    var bl = Math.round(lerpChannel(c1[2], c2[2], t));
+    return 'rgb(' + r + ',' + g + ',' + bl + ')';
+  }
+  function setThrust(ratio){
+    ratio = Math.max(0, Math.min(ratio, 1));
+    var scale = MIN_SCALE + ratio * (MAX_SCALE - MIN_SCALE);
+    document.documentElement.style.setProperty('--thrust-scale', scale.toFixed(2));
+    document.documentElement.style.setProperty('--thrust-color', thrustColor(ratio));
+  }
+  function fireDirection(dir, ratio){
+    if(dir === 'down'){
+      body.classList.add('scroll-down');
+      body.classList.remove('scroll-up');
+    } else if(dir === 'up'){
+      body.classList.add('scroll-up');
+      body.classList.remove('scroll-down');
+    }
+    setThrust(ratio);
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(function(){
+      body.classList.remove('scroll-down','scroll-up');
+      setThrust(0);
+    }, 180);
+  }
+
+  // Primary signal: wheel events give an immediate, reliable direction + magnitude
+  // per gesture, avoiding edge cases with diffing scrollY across animation frames.
+  window.addEventListener('wheel', function(e){
+    var dir = e.deltaY > 0 ? 'down' : (e.deltaY < 0 ? 'up' : null);
+    if(!dir) return;
+    var ratio = Math.pow(Math.min(Math.abs(e.deltaY) / 60, 1), .55);
+    fireDirection(dir, ratio);
+  }, {passive:true});
+
+  // Fallback signal: plain scroll events (keyboard, scrollbar drag, touch)
+  // in case wheel doesn't fire (e.g. some touch/trackpad-emulated scrolls).
+  function updateFromScroll(){
+    var y = window.scrollY;
+    var t = performance.now();
+    var dt = Math.max(t - lastT, 1);
+    var speed = Math.abs(y - lastY) / dt;
+    var ratio = Math.pow(Math.min(speed / MAX_SPEED, 1), .55);
+    if(y > lastY){
+      fireDirection('down', ratio);
+    } else if(y < lastY){
+      fireDirection('up', ratio);
+    }
+    lastY = y;
+    lastT = t;
+    dirTicking = false;
+  }
+  window.addEventListener('scroll', function(){
+    if(!dirTicking){
+      requestAnimationFrame(updateFromScroll);
+      dirTicking = true;
+    }
+  }, {passive:true});
+})();
+</script>
+</body>
+</html>
+      radial-gradient(circle,rgba(255,255,255,.55) 0 1px,transparent 1.4px);
+    background-size:157px 181px,113px 229px,89px 149px;
+    background-position:20px 30px,64px 142px,11px 97px;
+    opacity:.85;
+    transform:translateY(calc(var(--star-shift,0px) * -.05));
+  }
+  .stars:before{
+    background-image:
+      radial-gradient(circle,rgba(255,255,255,.95) 0 1.4px,transparent 1.8px),
+      radial-gradient(circle,rgba(255,255,255,.65) 0 1.1px,transparent 1.5px),
+      radial-gradient(circle,rgba(240,160,90,.75) 0 1.1px,transparent 1.5px);
+    background-size:241px 197px,173px 263px,131px 211px;
+    transform:translate(41px,calc(73px + var(--star-shift,0px) * -.1));opacity:.55
+  }
+  .stars:after{
+    background-image:
+      radial-gradient(circle,rgba(255,255,255,.85) 0 1.1px,transparent 1.5px),
+      radial-gradient(circle,rgba(255,255,255,.55) 0 1.4px,transparent 1.8px),
+      radial-gradient(circle,rgba(255,255,255,1) 0 1.7px,transparent 2.1px);
+    background-size:97px 233px,193px 149px,307px 271px;
+    transform:translate(-83px,calc(31px + var(--star-shift,0px) * -.16));opacity:.4
+  }
+
+  .wrap{width:min(1050px,calc(100% - 40px));margin:auto}
+  nav{
+    position:fixed;top:0;left:0;right:0;z-index:30;
+    background:rgba(3,3,3,.62);backdrop-filter:blur(14px);
+  }
+  .nav{
+    height:68px;display:flex;align-items:center;justify-content:center;
+  }
+
+  .nav-contact{display:flex;align-items:center;gap:18px}
+  .nav-contact a{
+    position:relative;
+    color:#ffffff;font-size:.85rem;font-weight:800;
+    letter-spacing:.1em;text-transform:uppercase;
+    text-decoration:none;
+    white-space:nowrap;opacity:1;
+    transition:color .25s ease,opacity .25s ease;
+    padding-bottom:3px;
+  }
+  .nav-contact a::after{
+    content:"";position:absolute;left:0;bottom:0;width:100%;height:1px;
+    background:var(--accent);
+    transform:scaleX(0);transform-origin:left;
+    transition:transform .3s ease;
+  }
+  .nav-contact a:hover{color:var(--accent);opacity:1}
+  .nav-contact a:hover::after{transform:scaleX(1)}
+
+  .hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;text-align:center;padding-top:130px;position:relative}
+  .hero h1{
+    font-size:clamp(2.6rem,7.5vw,5.8rem);line-height:1.02;
+    letter-spacing:-.015em;margin:0;
+  }
+  .hero h1 span{color:var(--accent)}
+  .bio-bubble{
+    max-width:940px;margin:16px auto 0;
+    text-align:left;
+    padding:36px 42px;
+    border:1px solid var(--line);
+    border-radius:0;
+    background:#0c0c0c;
+    font-family:'Varela Round',Arial,ui-sans-serif,sans-serif;
   }
   .bio-greeting{color:var(--muted);font-size:1.3rem;font-weight:400;margin-bottom:16px}
   .bio-body{margin:0;color:var(--muted);font-size:1.3rem;line-height:1.6}
