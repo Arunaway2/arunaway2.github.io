@@ -197,7 +197,7 @@
   .booster .flame-top{
     position:absolute;left:50%;
     width:26px;height:36px;
-    transform:translateX(-50%) scale(var(--thrust-scale,.4));
+    transform:translateX(-50%);
     opacity:0;
     box-shadow:0 0 20px 5px #1e8cff;
     transition:opacity .45s ease,transform .25s ease-out,background .2s linear,box-shadow .2s linear;
@@ -245,10 +245,10 @@
     100%{clip-path:polygon(50% 0%,72% 11%,88% 24%,98% 36%,100% 48%,97% 61%,86% 74%,70% 87%,50% 100%,30% 87%,14% 74%,3% 61%,0% 48%,2% 36%,12% 24%,28% 11%)}
   }
   @keyframes wobble{
-    0%{transform:translateX(-50%) scale(var(--thrust-scale,.4)) scaleY(.997) skewX(-.1deg)}
-    28%{transform:translateX(-50%) scale(var(--thrust-scale,.4)) scaleY(1.003) skewX(.08deg)}
-    55%{transform:translateX(-50%) scale(var(--thrust-scale,.4)) scaleY(.9985) skewX(-.05deg)}
-    100%{transform:translateX(-50%) scale(var(--thrust-scale,.4)) scaleY(1.002) skewX(.1deg)}
+    0%{transform:translateX(-50%) scaleY(.997) skewX(-.1deg)}
+    28%{transform:translateX(-50%) scaleY(1.003) skewX(.08deg)}
+    55%{transform:translateX(-50%) scaleY(.9985) skewX(-.05deg)}
+    100%{transform:translateX(-50%) scaleY(1.002) skewX(.1deg)}
   }
   /* Scrolling down: every booster fires its bottom flame — wobble + shape morph together. */
   body.scroll-down .booster .flame-bottom{
@@ -474,27 +474,23 @@
 
   // Track scroll direction and speed so the correct boosters fire,
   // with flame length AND color proportional to how fast the page is scrolling:
-  // orange (slow) -> blue (medium) -> white (fastest).
+  // On/off system with activity-weighted persistence: flames fire at a fixed
+  // size, but how long they linger depends on recent scroll activity — a tiny
+  // nudge dies out quickly, sustained scrolling keeps them lit longer.
   var lastY = window.scrollY;
-  var lastT = performance.now();
   var body = document.body;
   var dirTicking = false;
   var idleTimer = null;
-  var MIN_SCALE = 0.4, MAX_SCALE = 1.7;
-  // Logarithmic response: fast growth at low speeds, heavy diminishing returns
-  // at high speeds — the flame approaches but never blows past MAX_SCALE.
-  // norm is the input speed normalized so ~1.0 = a "brisk" scroll.
-  function logRatio(norm){
-    if(norm <= 0) return 0;
-    var K = 6; // curve steepness: higher = saturates sooner
-    return Math.log(1 + K * norm) / Math.log(1 + K * 4); // saturates around 4x brisk speed
-  }
-  function setThrust(ratio){
-    ratio = Math.max(0, Math.min(ratio, 1));
-    var scale = MIN_SCALE + ratio * (MAX_SCALE - MIN_SCALE);
-    document.documentElement.style.setProperty('--thrust-scale', scale.toFixed(2));
-  }
-  function fireDirection(dir, ratio){
+  var activity = 0;               // accumulated recent scroll amount (px)
+  var lastFire = performance.now();
+  var MIN_LINGER = 180, MAX_LINGER = 700, FULL_ACTIVITY = 600; // px of recent scrolling for max linger
+  function fireDirection(dir, amount){
+    var now = performance.now();
+    // Decay accumulated activity over time so old scrolling stops counting
+    activity *= Math.pow(.5, (now - lastFire) / 400); // half-life of 400ms
+    activity += Math.abs(amount || 0);
+    lastFire = now;
+
     if(dir === 'down'){
       body.classList.add('scroll-down');
       body.classList.remove('scroll-up');
@@ -502,38 +498,32 @@
       body.classList.add('scroll-up');
       body.classList.remove('scroll-down');
     }
-    setThrust(ratio);
+    var t = Math.min(activity / FULL_ACTIVITY, 1);
+    var linger = MIN_LINGER + t * (MAX_LINGER - MIN_LINGER);
     clearTimeout(idleTimer);
     idleTimer = setTimeout(function(){
       body.classList.remove('scroll-down','scroll-up');
-      setThrust(0);
-    }, 700);
+      activity = 0;
+    }, linger);
   }
 
-  // Primary signal: wheel events give an immediate, reliable direction + magnitude
-  // per gesture, avoiding edge cases with diffing scrollY across animation frames.
+  // Primary signal: wheel events give an immediate, reliable direction per gesture.
   window.addEventListener('wheel', function(e){
     var dir = e.deltaY > 0 ? 'down' : (e.deltaY < 0 ? 'up' : null);
     if(!dir) return;
-    var ratio = logRatio(Math.abs(e.deltaY) / 100); // ~100px delta = brisk wheel tick
-    fireDirection(dir, ratio);
+    fireDirection(dir, e.deltaY);
   }, {passive:true});
 
   // Fallback signal: plain scroll events (keyboard, scrollbar drag, touch)
   // in case wheel doesn't fire (e.g. some touch/trackpad-emulated scrolls).
   function updateFromScroll(){
     var y = window.scrollY;
-    var t = performance.now();
-    var dt = Math.max(t - lastT, 1);
-    var speed = Math.abs(y - lastY) / dt;
-    var ratio = logRatio(speed / 0.6); // ~0.6 px/ms = brisk scroll
     if(y > lastY){
-      fireDirection('down', ratio);
+      fireDirection('down', y - lastY);
     } else if(y < lastY){
-      fireDirection('up', ratio);
+      fireDirection('up', y - lastY);
     }
     lastY = y;
-    lastT = t;
     dirTicking = false;
   }
   window.addEventListener('scroll', function(){
