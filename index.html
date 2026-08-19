@@ -38,6 +38,7 @@
     background-size:157px 181px,113px 229px,89px 149px;
     background-position:20px 30px,64px 142px,11px 97px;
     opacity:.85;
+    transform:translateY(calc(var(--star-shift,0px) * -.05));
   }
   .stars:before{
     background-image:
@@ -45,7 +46,7 @@
       radial-gradient(circle,rgba(255,255,255,.65) 0 1.1px,transparent 1.5px),
       radial-gradient(circle,rgba(240,160,90,.75) 0 1.1px,transparent 1.5px);
     background-size:241px 197px,173px 263px,131px 211px;
-    transform:translate(41px,73px);opacity:.55
+    transform:translate(41px,calc(73px + var(--star-shift,0px) * -.1));opacity:.55
   }
   .stars:after{
     background-image:
@@ -53,7 +54,7 @@
       radial-gradient(circle,rgba(255,255,255,.55) 0 1.4px,transparent 1.8px),
       radial-gradient(circle,rgba(255,255,255,1) 0 1.7px,transparent 2.1px);
     background-size:97px 233px,193px 149px,307px 271px;
-    transform:translate(-83px,31px);opacity:.4
+    transform:translate(-83px,calc(31px + var(--star-shift,0px) * -.16));opacity:.4
   }
 
   .wrap{width:min(1050px,calc(100% - 40px));margin:auto}
@@ -179,7 +180,7 @@
     <div class="wrap">
       <div class="label"></div>
       <div class="bio-bubble">
-        <div class="bio-greeting">Hi!</div>
+        <div class="bio-greeting">Hi,</div>
         <p class="bio-body">
           My name is <strong>Arunaabha Yadavalli</strong>, and I am a senior at UC Berkeley studying EECS and Mechanical Engineering. I am interested in robotics, backend development, and AI. Currently learning how to write GPU kernels for Machine Learning.
         </p>
@@ -316,5 +317,21 @@
 <footer>
   <div class="wrap">© 2026 Arunaabha Yadavalli</div>
 </footer>
+<script>
+(function(){
+  var root = document.documentElement;
+  var ticking = false;
+  function updateStars(){
+    root.style.setProperty('--star-shift', window.scrollY + 'px');
+    ticking = false;
+  }
+  window.addEventListener('scroll', function(){
+    if(!ticking){
+      requestAnimationFrame(updateStars);
+      ticking = true;
+    }
+  }, {passive:true});
+})();
+</script>
 </body>
 </html>
