@@ -6,7 +6,7 @@
 <title>Arun — Portfolio</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Varela+Round&family=Playfair+Display:ital,wght@1,600&display=swap" rel="stylesheet">
 <style>
   :root{
     --bg:#000000;
@@ -15,6 +15,30 @@
     --text:#f5f2ec;
     --muted:#bdb9b1;
     --accent:#f0a05a;
+    --flame-light:#8ecbff;
+    --flame-mid:#1e8cff;
+    --flame-deep:#0a5fd6;
+    --flame-core:rgba(255,255,240,.95);
+    --star-color:255,255,255;
+    --nav-bg:rgba(3,3,3,.62);
+    --portrait-light:#000000;
+    --portrait-line:#f5f2ec;
+  }
+  body.light{
+    --bg:#e8e2d5;
+    --panel:rgba(255,255,255,.76);
+    --line:rgba(0,0,0,.2);
+    --text:#141210;
+    --muted:#4a4740;
+    --accent:#c67117;
+    --flame-light:#ffb347;
+    --flame-mid:#ff5e78;
+    --flame-deep:#d6244f;
+    --flame-core:rgba(255,236,210,.98);
+    --star-color:0,0,0;
+    --nav-bg:rgba(232,226,213,.62);
+    --portrait-light:#e8e2d5;
+    --portrait-line:#141210;
   }
   *{box-sizing:border-box}
   html{}
@@ -23,18 +47,12 @@
     font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
     overflow-x:hidden;
   }
-  body:before{
-    content:"";position:fixed;inset:0;pointer-events:none;z-index:-5;
-    background:
-      radial-gradient(circle at 20% 20%,rgba(255,255,255,.035),transparent 28%),
-      radial-gradient(circle at 80% 70%,rgba(240,160,90,.025),transparent 32%);
-  }
   .stars,.stars:before,.stars:after{
     position:fixed;inset:0;content:"";pointer-events:none;z-index:-4;
     background-image:
-      radial-gradient(circle,rgba(255,255,255,1) 0 1.2px,transparent 1.7px),
-      radial-gradient(circle,rgba(255,255,255,.8) 0 1.1px,transparent 1.6px),
-      radial-gradient(circle,rgba(255,255,255,.55) 0 1px,transparent 1.4px);
+      radial-gradient(circle,rgba(var(--star-color),1) 0 1.2px,transparent 1.7px),
+      radial-gradient(circle,rgba(var(--star-color),.8) 0 1.1px,transparent 1.6px),
+      radial-gradient(circle,rgba(var(--star-color),.55) 0 1px,transparent 1.4px);
     background-size:157px 181px,113px 229px,89px 149px;
     background-position:20px 30px,64px 142px,11px 97px;
     opacity:.85;
@@ -42,17 +60,17 @@
   }
   .stars:before{
     background-image:
-      radial-gradient(circle,rgba(255,255,255,.95) 0 1.4px,transparent 1.8px),
-      radial-gradient(circle,rgba(255,255,255,.65) 0 1.1px,transparent 1.5px),
+      radial-gradient(circle,rgba(var(--star-color),.95) 0 1.4px,transparent 1.8px),
+      radial-gradient(circle,rgba(var(--star-color),.65) 0 1.1px,transparent 1.5px),
       radial-gradient(circle,rgba(240,160,90,.75) 0 1.1px,transparent 1.5px);
     background-size:241px 197px,173px 263px,131px 211px;
     transform:translate(41px,calc(73px + var(--star-shift,0px) * -.1));opacity:.55
   }
   .stars:after{
     background-image:
-      radial-gradient(circle,rgba(255,255,255,.85) 0 1.1px,transparent 1.5px),
-      radial-gradient(circle,rgba(255,255,255,.55) 0 1.4px,transparent 1.8px),
-      radial-gradient(circle,rgba(255,255,255,1) 0 1.7px,transparent 2.1px);
+      radial-gradient(circle,rgba(var(--star-color),.85) 0 1.1px,transparent 1.5px),
+      radial-gradient(circle,rgba(var(--star-color),.55) 0 1.4px,transparent 1.8px),
+      radial-gradient(circle,rgba(var(--star-color),1) 0 1.7px,transparent 2.1px);
     background-size:97px 233px,193px 149px,307px 271px;
     transform:translate(-83px,calc(31px + var(--star-shift,0px) * -.16));opacity:.4
   }
@@ -60,16 +78,17 @@
   .wrap{width:min(1050px,calc(100% - 40px));margin:auto}
   nav{
     position:fixed;top:0;left:0;right:0;z-index:30;
-    background:rgba(3,3,3,.62);backdrop-filter:blur(14px);
+    background:transparent;
+    pointer-events:none;
   }
   .nav{
     height:68px;display:flex;align-items:center;justify-content:center;
   }
 
-  .nav-contact{display:flex;align-items:center;gap:18px}
+  .nav-contact{display:flex;align-items:center;gap:18px;pointer-events:auto}
   .nav-contact a{
     position:relative;
-    color:#ffffff;font-size:.85rem;font-weight:800;
+    color:var(--text);font-size:.85rem;font-weight:800;
     letter-spacing:.1em;text-transform:uppercase;
     text-decoration:none;
     white-space:nowrap;opacity:1;
@@ -84,8 +103,23 @@
   }
   .nav-contact a:hover{color:var(--accent);opacity:1}
   .nav-contact a:hover::after{transform:scaleX(1)}
+  #theme-toggle{
+    background:transparent;
+    border:none;
+    color:var(--text);
+    width:32px;height:32px;
+    font-size:1.2rem;line-height:1;
+    cursor:pointer;
+    display:grid;place-items:center;
+    padding:0;
+  }
+  #theme-toggle:hover{color:var(--accent)}
+  body, nav, .stars, .stars:before, .stars:after{
+    transition:background-color .35s ease,color .35s ease;
+  }
 
-  .hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;text-align:center;padding-top:130px;position:relative}
+  .hero{display:flex;flex-direction:column;align-items:center;text-align:center;padding-top:130px;padding-bottom:150px;position:relative}
+  #experience{padding-top:450px}
   .hero h1{
     font-size:clamp(2.6rem,7.5vw,5.8rem);line-height:1.02;
     letter-spacing:-.015em;margin:0;
@@ -95,17 +129,44 @@
     max-width:940px;margin:16px auto 0;
     text-align:left;
     padding:36px 42px;
-    border:1px solid var(--line);
+    border:none;
     border-radius:0;
-    background:#0c0c0c;
+    background:transparent;
     font-family:'Varela Round',Arial,ui-sans-serif,sans-serif;
     position:relative;
   }
-  .bio-greeting{color:var(--muted);font-size:1.3rem;font-weight:400;margin-bottom:16px}
+  .portrait{
+    width:clamp(130px,16vw,190px);
+    margin:0 auto 18px;
+    line-height:0;
+  }
+  .portrait svg{width:100%;height:auto;display:block}
+  .bio-name{
+    font-family:'Playfair Display',Georgia,'Times New Roman',serif;
+    font-style:italic;font-weight:600;
+    color:var(--text);font-size:clamp(2.6rem,6vw,4.5rem);
+    margin:10px 0 6px;letter-spacing:.01em;
+    text-align:center;line-height:1.1;
+  }
+  .bio-tagline{
+    font-family:'Times New Roman',Times,serif;
+    color:var(--muted);font-size:1.45rem;
+    text-align:center;margin:0 0 26px;
+  }
   .bio-body{margin:0;color:var(--muted);font-size:1.3rem;line-height:1.6}
-  .scroll{
-    position:absolute;left:50%;bottom:90px;transform:translateX(-50%);
-    color:#f5f2ec;font-size:1.4rem;line-height:1;
+  .scroll-arrows{
+    max-width:940px;margin:-50px auto 90px;
+    padding:0 42px;
+    display:flex;justify-content:space-between;
+  }
+  .scroll-arrows{
+    transition:opacity .05s ease;
+  }
+  body.scrolled .scroll-arrows{
+    opacity:0;pointer-events:none;
+  }
+  .scroll-arrow{
+    color:var(--text);font-size:1.4rem;line-height:1;
     animation:blink 1s ease-in-out infinite;
   }
   @keyframes blink{
@@ -120,57 +181,82 @@
 
   .projects{display:grid;gap:12px}
   .project{
-    display:grid;grid-template-columns:55px 1fr;align-items:center;gap:18px;
-    padding:23px 25px;border:1px solid var(--line);border-radius:4px;
-    background:#101010;
+    display:block;
+    padding:23px 25px;border:none;border-radius:4px;
+    background:transparent;
     position:relative;
   }
-  .num{color:#8a867f;font-size:.75rem}
-  .project h3{margin:0 0 5px;font-size:1.12rem}
-  .project p{margin:0;color:var(--muted);font-size:.9rem}
+  .project h3{margin:0 0 5px;font-size:1.35rem}
+  .project p{margin:0;color:var(--muted);font-size:1.08rem}
 
   .exp{display:grid;gap:12px}
   .exp-item{
-    padding:23px 25px;border:1px solid var(--line);border-radius:4px;
-    background:#101010;
+    padding:23px 25px;border:none;border-radius:4px;
+    background:transparent;
     position:relative;
   }
   .exp-head{display:flex;flex-wrap:wrap;align-items:flex-start;gap:8px;margin-bottom:6px}
-  .exp-item h3{margin:0;font-size:1.12rem}
-  .exp-role{color:var(--accent);font-size:.85rem}
-  .exp-date{color:#a5a19a;font-size:.8rem;white-space:nowrap;margin-left:auto;margin-top:.2em}
+  .exp-item h3{margin:0;font-size:1.35rem}
+  .exp-role{color:var(--accent);font-size:1.02rem}
+  .exp-date{color:var(--muted);font-size:.95rem;white-space:nowrap;margin-left:auto;margin-top:.2em}
   .exp-sub{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:10px}
-  .exp-loc{color:#a5a19a;font-size:.8rem;white-space:nowrap}
-  .exp-item p{margin:0;color:var(--muted);font-size:.9rem;line-height:1.5}
+  .exp-loc{color:var(--muted);font-size:.95rem;white-space:nowrap}
+  .exp-item p{margin:0;color:var(--muted);font-size:1.08rem;line-height:1.5}
 
   .skill-group{
     margin-bottom:18px;
     padding:26px 28px;
-    border:1px solid var(--line);
+    border:none;
     border-radius:4px;
-    background:#101010;
+    background:transparent;
     position:relative;
   }
   .skill-group:last-child{margin-bottom:0}
-  .skill-cat{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+  .skill-cat{font-size:.88rem;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
   .skills{display:flex;flex-wrap:wrap;gap:9px;max-width:850px}
   .skill{
-    padding:9px 13px;border:1px solid var(--line);border-radius:4px;
-    color:#d6d2ca;background:#101010;font-size:.85rem
+    padding:9px 13px;border:none;border-radius:4px;
+    color:var(--muted);background:transparent;font-size:1rem
   }
 
-  footer{padding:60px 0 90px;color:#8a867f;border-top:1px solid var(--line);font-size:.8rem}
+  footer{padding:60px 0 200px;color:var(--muted);border-top:1px solid var(--line);font-size:.8rem}
 
-  /* Rocket boosters — 2 per block, mounted on the left and right edges.
+  /* Rocket booster — one per gap between sections, centered.
      Each booster has a flame at BOTH ends (top and bottom) so it can thrust
-     in either direction — the correct end fires depending on scroll direction.
-     Cartoon-style jagged flame, animated with a wobble; length/color scale
-     with scroll speed. */
-  .boosters{position:absolute;inset:0;pointer-events:none;z-index:2}
+     in either direction — the correct end fires depending on scroll direction. */
+  .section-booster{
+    position:fixed;left:50%;margin-left:540px;top:38%;
+    margin-top:-25px;
+    pointer-events:none;z-index:5;
+  }
+  /* Orbital mode: the wrapper anchors to the planet's live centre and the
+     rocket's transform is driven frame-by-frame from the scroll position,
+     so the trajectory is always exactly in sync with the user's scrolling. */
+  body.orbital .section-booster{
+    top:var(--planet-cy,50%);
+  }
+  body.orbital .booster{
+    animation:none !important;
+  }
+  /* The cookie planet — a normal in-flow element on the flight line. */
+  .earth{
+    width:170px;height:170px;
+    margin:130px 0 30px calc(50% + 465px);
+    pointer-events:none;
+    line-height:0;
+  }
+  .earth svg{width:100%;height:100%;display:block}
+  .earth .spin{
+    transform-origin:100px 100px;
+    animation:earth-spin 90s linear infinite;
+  }
+  @keyframes earth-spin{
+    from{transform:rotate(0deg)}
+    to{transform:rotate(360deg)}
+  }
   .booster{
-    position:absolute;
-    top:50%;transform:translateY(-50%);
-    width:9px;height:26px;
+    position:relative;
+    width:20px;height:50px;
     background:linear-gradient(180deg,
       #9a968e 0%, #9a968e 12%,
       #c0392b 12%, #c0392b 20%,
@@ -178,17 +264,25 @@
       #c0392b 80%, #c0392b 88%,
       #9a968e 88%, #9a968e 100%);
     border:1px solid rgba(0,0,0,.5);
+    /* Idle: drifts and tips lazily like it's weightless.
+       Starts and ends at vertical so it eases out of the upright
+       scrolling pose instead of snapping to an angle. */
+    animation:float-idle 18s ease-in-out infinite;
+    transition:transform .45s ease-out;
   }
-  .booster.edge-left{left:-26px}
-  .booster.edge-right{right:-26px}
-  /* Strut connecting the booster body to the block's edge */
-  .booster .strut{
-    position:absolute;top:50%;height:3px;
-    background:linear-gradient(90deg,#5c5850,#8f8b84);
-    transform:translateY(-50%);
+  @keyframes float-idle{
+    0%{transform:translate(0,0) rotate(0deg)}
+    25%{transform:translate(-5px,-4px) rotate(-11deg)}
+    50%{transform:translate(3px,4px) rotate(6deg)}
+    75%{transform:translate(4px,-3px) rotate(9deg)}
+    100%{transform:translate(0,0) rotate(0deg)}
   }
-  .booster.edge-left .strut{left:100%;width:18px}
-  .booster.edge-right .strut{right:100%;width:18px}
+  /* Scrolling: engine engages, so it snaps upright and holds steady. */
+  body.scroll-down .booster,
+  body.scroll-up .booster{
+    animation:none;
+    transform:translate(0,0) rotate(0deg);
+  }
   /* Cartoon flame — pointed at the nozzle, flaring into a flickering double-lobed base.
      Fixed base size + uniform scale keeps proportions consistent; size scales with speed.
      The clip-path itself is animated between several silhouettes, so the flame genuinely
@@ -196,27 +290,27 @@
   .booster .flame-bottom,
   .booster .flame-top{
     position:absolute;left:50%;
-    width:26px;height:36px;
+    width:40px;height:56px;
     transform:translateX(-50%);
     opacity:0;
-    box-shadow:0 0 20px 5px #1e8cff;
+    box-shadow:0 0 20px 5px var(--flame-mid);
     transition:opacity .45s ease,transform .25s ease-out,background .2s linear,box-shadow .2s linear;
   }
   /* Hot inner core — smaller, brighter almond dancing inside the outer one */
   .booster .flame-bottom::after,
   .booster .flame-top::after{
     content:"";position:absolute;left:50%;
-    width:13px;height:20px;
-    background:rgba(255,255,240,.95);
+    width:20px;height:31px;
+    background:var(--flame-core);
     transform:translateX(-50%);
     clip-path:polygon(50% 0%,69% 12.5%,85% 25%,96% 37.5%,100% 50%,96% 62.5%,85% 75%,69% 87.5%,50% 100%,31% 87.5%,15% 75%,4% 62.5%,0% 50%,4% 37.5%,15% 25%,31% 12.5%);
-    animation:core-dance .4s ease-in-out infinite alternate;
+    animation:core-dance .5s steps(1) infinite;
   }
   .booster .flame-bottom::after{top:6%}
   .booster .flame-top::after{bottom:6%}
   @keyframes core-dance{
-    0%{transform:translateX(-50.3%) scaleY(.9925)}
-    100%{transform:translateX(-49.7%) scaleY(1.006)}
+    0%,49.9%{transform:translateX(-52.5%) scaleY(.94)}
+    50%,100%{transform:translateX(-47.5%) scaleY(1.05)}
   }
   /* Outer flame — smooth symmetric almond (vesica) silhouette.
      Gradient keeps the tip visible: it deepens in tone instead of fading out. */
@@ -224,66 +318,58 @@
     top:100%;
     transform-origin:top center;
     clip-path:polygon(50% 0%,69% 12.5%,85% 25%,96% 37.5%,100% 50%,96% 62.5%,85% 75%,69% 87.5%,50% 100%,31% 87.5%,15% 75%,4% 62.5%,0% 50%,4% 37.5%,15% 25%,31% 12.5%);
-    background:linear-gradient(to bottom,#8ecbff 0%,#1e8cff 55%,#0a5fd6 100%);
+    background:linear-gradient(to bottom,var(--flame-light) 0%,var(--flame-mid) 55%,var(--flame-deep) 100%);
     }
   .booster .flame-top{
     bottom:100%;
     transform-origin:bottom center;
     clip-path:polygon(50% 0%,69% 12.5%,85% 25%,96% 37.5%,100% 50%,96% 62.5%,85% 75%,69% 87.5%,50% 100%,31% 87.5%,15% 75%,4% 62.5%,0% 50%,4% 37.5%,15% 25%,31% 12.5%);
-    background:linear-gradient(to top,#8ecbff 0%,#1e8cff 55%,#0a5fd6 100%);
+    background:linear-gradient(to top,var(--flame-light) 0%,var(--flame-mid) 55%,var(--flame-deep) 100%);
   }
-  /* Morphing silhouettes — same 16-vertex almond, gently breathing between
-     narrower, base, and fuller variants so it stays organic and smooth */
-  @keyframes morph-down{
-    0%{clip-path:polygon(50% 0%,69% 12.5%,85% 25%,96% 37.5%,100% 50%,96% 62.5%,85% 75%,69% 87.5%,50% 100%,31% 87.5%,15% 75%,4% 62.5%,0% 50%,4% 37.5%,15% 25%,31% 12.5%)}
-    50%{clip-path:polygon(50% 0%,66% 14%,82% 27%,94% 40%,98% 54%,94% 66%,83% 78%,67% 89%,50% 100%,33% 89%,17% 78%,6% 66%,2% 54%,6% 40%,18% 27%,34% 14%)}
-    100%{clip-path:polygon(50% 0%,72% 11%,88% 24%,98% 36%,100% 48%,97% 61%,86% 74%,70% 87%,50% 100%,30% 87%,14% 74%,3% 61%,0% 48%,2% 36%,12% 24%,28% 11%)}
-  }
-  @keyframes morph-up{
-    0%{clip-path:polygon(50% 0%,69% 12.5%,85% 25%,96% 37.5%,100% 50%,96% 62.5%,85% 75%,69% 87.5%,50% 100%,31% 87.5%,15% 75%,4% 62.5%,0% 50%,4% 37.5%,15% 25%,31% 12.5%)}
-    50%{clip-path:polygon(50% 0%,66% 14%,82% 27%,94% 40%,98% 54%,94% 66%,83% 78%,67% 89%,50% 100%,33% 89%,17% 78%,6% 66%,2% 54%,6% 40%,18% 27%,34% 14%)}
-    100%{clip-path:polygon(50% 0%,72% 11%,88% 24%,98% 36%,100% 48%,97% 61%,86% 74%,70% 87%,50% 100%,30% 87%,14% 74%,3% 61%,0% 48%,2% 36%,12% 24%,28% 11%)}
+  /* Two-frame sprite swap — the flame hard-cuts between two distinct
+     silhouettes (slim + full) like a retro game animation. */
+  @keyframes sprite-swap{
+    0%,49.9%{clip-path:polygon(50% 0%,66% 14%,82% 27%,94% 40%,98% 54%,94% 66%,83% 78%,67% 89%,50% 100%,33% 89%,17% 78%,6% 66%,2% 54%,6% 40%,18% 27%,34% 14%)}
+    50%,100%{clip-path:polygon(50% 0%,72% 11%,88% 24%,98% 36%,100% 48%,97% 61%,86% 74%,70% 87%,50% 100%,30% 87%,14% 74%,3% 61%,0% 48%,2% 36%,12% 24%,28% 11%)}
   }
   @keyframes wobble{
-    0%{transform:translateX(-50%) scaleY(.997) skewX(-.1deg)}
-    28%{transform:translateX(-50%) scaleY(1.003) skewX(.08deg)}
-    55%{transform:translateX(-50%) scaleY(.9985) skewX(-.05deg)}
-    100%{transform:translateX(-50%) scaleY(1.002) skewX(.1deg)}
+    0%{transform:translateX(-50%) scaleY(.975) skewX(-1deg)}
+    28%{transform:translateX(-50%) scaleY(1.025) skewX(.8deg)}
+    55%{transform:translateX(-50%) scaleY(.986) skewX(-.5deg)}
+    100%{transform:translateX(-50%) scaleY(1.02) skewX(1deg)}
   }
-  /* Scrolling down: every booster fires its bottom flame — wobble + shape morph together. */
-  body.scroll-down .booster .flame-bottom{
+  /* Scrolling down: every booster fires its bottom flame — sprite swap + gentle sway. */
+  body.scroll-down .booster .flame-top{
     opacity:1;
-    animation:wobble .45s ease-in-out infinite alternate,
-              morph-down .9s ease-in-out infinite alternate;
+    animation:wobble .6s ease-in-out infinite alternate,
+              sprite-swap .5s steps(1) infinite;
   }
   /* Scrolling up: every booster fires its top flame. */
-  body.scroll-up .booster .flame-top{
+  body.scroll-up .booster .flame-bottom{
     opacity:1;
-    animation:wobble .45s ease-in-out infinite alternate,
-              morph-up .9s ease-in-out infinite alternate;
+    animation:wobble .6s ease-in-out infinite alternate,
+              sprite-swap .5s steps(1) infinite;
   }
 
   @media(max-width:700px){
     .nav-contact{gap:14px}
     .wrap{width:min(100% - 28px,1050px)}
     section{padding:85px 0}
-    .project{grid-template-columns:35px 1fr}
     .hero h1{font-size:clamp(2.1rem,9vw,3.2rem)}
-    .bio-greeting{font-size:1.05rem}
+    .bio-name{font-size:2rem}
     .bio-body{font-size:1.05rem}
-    .boosters{display:none}
   }
 </style>
 </head>
 <body>
 <div class="stars"></div>
-
 <nav>
   <div class="wrap nav">
     <div class="nav-contact">
       <a href="mailto:arunaway@berkeley.edu">Email</a>
       <a href="https://linkedin.com/in/arunaabhay" target="_blank" rel="noopener">LinkedIn</a>
       <a href="https://github.com/Arunaway2" target="_blank" rel="noopener">GitHub</a>
+      <button id="theme-toggle" aria-label="Toggle light/dark mode" title="Toggle light/dark mode">☾</button>
     </div>
   </div>
 </nav>
@@ -292,18 +378,81 @@
   <section class="hero">
     <div class="wrap">
       <div class="label"></div>
+      <div class="portrait">
+        <svg viewBox="0 0 200 240" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Minimal anime-style line-art portrait">
+          <!-- face: wide and short, anime proportions, small tapered chin -->
+          <path d="M100 58 C131 58 149 75 149 103 L149 122
+                   C149 143 139 159 123 169 C115 174 107 177 100 177
+                   C93 177 85 174 77 169 C61 159 51 143 51 122
+                   L51 103 C51 75 69 58 100 58 Z"
+                fill="var(--portrait-light)" stroke="var(--portrait-line)" stroke-width="2"/>
+          <!-- ears -->
+          <path d="M51 116 Q43 118 45 128 Q47 136 52 136" stroke="var(--portrait-line)"
+                stroke-width="2" fill="none" stroke-linecap="round"/>
+          <path d="M149 116 Q157 118 155 128 Q153 136 148 136" stroke="var(--portrait-line)"
+                stroke-width="2" fill="none" stroke-linecap="round"/>
+          <!-- hair: short spiky anime mass with jagged fringe -->
+          <path d="M54 112
+                   C48 100 45 88 48 74
+                   L36 66 L52 63
+                   L43 46 L62 51
+                   L58 28 L77 42
+                   L79 20 L93 37
+                   L102 18 L112 36
+                   L122 22 L126 41
+                   L141 30 L138 50
+                   L157 47 L148 62
+                   L164 67 L150 76
+                   C154 89 152 101 146 112
+                   L137 103 L131 89 L124 106
+                   L116 86 L109 104
+                   L100 84 L92 103
+                   L84 86 L77 106
+                   L69 90 L62 107 Z"
+                fill="var(--portrait-line)"/>
+          <!-- stray strands -->
+          <path d="M88 94 Q92 103 87 110" stroke="var(--portrait-line)" stroke-width="2"
+                fill="none" stroke-linecap="round"/>
+          <path d="M113 94 Q116 102 112 109" stroke="var(--portrait-line)" stroke-width="2"
+                fill="none" stroke-linecap="round"/>
+          <!-- brows -->
+          <path d="M70 117 Q80 113 90 116" stroke="var(--portrait-line)" stroke-width="2.2"
+                fill="none" stroke-linecap="round"/>
+          <path d="M110 116 Q120 113 130 117" stroke="var(--portrait-line)" stroke-width="2.2"
+                fill="none" stroke-linecap="round"/>
+          <!-- eyes: larger anime eyes, calm lids, big pupils with a light spark -->
+          <path d="M68 128 Q80 121 92 128" stroke="var(--portrait-line)" stroke-width="2.2"
+                fill="none" stroke-linecap="round"/>
+          <path d="M108 128 Q120 121 132 128" stroke="var(--portrait-line)" stroke-width="2.2"
+                fill="none" stroke-linecap="round"/>
+          <circle cx="80" cy="133" r="4.6" fill="var(--portrait-line)"/>
+          <circle cx="120" cy="133" r="4.6" fill="var(--portrait-line)"/>
+          <circle cx="81.6" cy="131.4" r="1.3" fill="var(--portrait-light)"/>
+          <circle cx="121.6" cy="131.4" r="1.3" fill="var(--portrait-light)"/>
+          <!-- nose: tiny anime tick -->
+          <path d="M100 143 Q101 149 104 151" stroke="var(--portrait-line)"
+                stroke-width="1.8" fill="none" stroke-linecap="round"/>
+          <!-- mouth: small calm smile -->
+          <path d="M93 161 Q100 166 107 161" stroke="var(--portrait-line)" stroke-width="2"
+                fill="none" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="bio-name">Arunaabha Yadavalli</div>
+      <div class="bio-tagline">hungry, foolish, and slightly delusional</div>
       <div class="bio-bubble">
-        <div class="bio-greeting">Hi,</div>
         <p class="bio-body">
-          My name is <strong>Arunaabha Yadavalli</strong>, and I am a student at UC Berkeley studying EECS and Mechanical Engineering. I am interested in robotics, backend development, and AI. Currently learning how to write GPU kernels for Machine Learning.
+          Welcome! I'm a creative who codes. I love to learn new and old technologies to build cool stuff that drives tangible change in one of my many interests, like robotics, backend systems, AI/ML, cooking, badminton...and so many left out. I approach any project with obsession and undivided attention. I am constantly looking for opportunities to learn and level up at this craft, and I never say no to grab some coffee, mochas are my favorite. Currently I am figuring out GPU kernel development for Machine Learning acceleration, pls send me resources you know if you wanna help me!
         </p>
       </div>
-      <div class="scroll">↓</div>
     </div>
   </section>
 
   <section id="experience">
     <div class="wrap">
+      <div class="scroll-arrows">
+        <span class="scroll-arrow">↓</span>
+        <span class="scroll-arrow">↓</span>
+      </div>
       <h2>Experience</h2>
       <div class="exp">
         <article class="exp-item">
@@ -315,7 +464,7 @@
             <div class="exp-role">Software Development Engineer Intern</div>
             <div class="exp-loc">Seattle, WA</div>
           </div>
-          <p>Refactored a traffic-forecasting API to pull in new timeseries sources, meaningfully improving forecast accuracy, and built a Jupyter dashboard monitoring load balancers to speed up on-call capacity checks.</p>
+          <p>Refactored a traffic forecasting API to pull in new timeseries sources, meaningfully improving forecast accuracy, and built a Jupyter dashboard monitoring load balancers to speed up oncall capacity checks.</p>
         </article>
         <article class="exp-item">
           <div class="exp-head">
@@ -337,7 +486,7 @@
             <div class="exp-role">Undergraduate Researcher</div>
             <div class="exp-loc">Berkeley, CA</div>
           </div>
-          <p>Built an optimal LQR controller for a Unitree A1 quadruped, modeling it as an inverted pendulum to achieve a one-legged handstand.</p>
+          <p>Built an optimal LQR controller for a Unitree A1 quadruped, modeling it as an inverted pendulum to achieve a handstand on one leg.</p>
         </article>
       </div>
     </div>
@@ -405,27 +554,58 @@
       <h2>Projects</h2>
       <div class="projects">
         <article class="project">
-          <div class="num">01</div><div><h3>Competitive Deep RL Autonomous Drone Racer</h3><p>PPO reinforcement learning, MPC, and CMPCC controllers racing drones in NVIDIA Isaac Sim, achieving a top lap time and ranking first in safety on A2RL's 2025 track.</p></div>
+          <div><h3>Competitive Deep RL Autonomous Drone Racer</h3><p>PPO reinforcement learning, MPC, and CMPCC controllers racing drones in NVIDIA Isaac Sim, achieving a top lap time and ranking first in safety on A2RL's 2025 track.</p></div>
         </article>
         <article class="project">
-          <div class="num">02</div><div><h3>MapReduce</h3><p>Distributed MapReduce system in Rust and gRPC with a coordinator that splits jobs across workers and auto-reassigns work from crashed ones.</p></div>
+          <div><h3>MapReduce</h3><p>Distributed MapReduce system in Rust and gRPC with a coordinator that splits jobs across workers and automatically reassigns work from crashed ones.</p></div>
         </article>
         <article class="project">
-          <div class="num">03</div><div><h3>Pintos Operating System</h3><p>OS kernel with thread and file syscalls, strict priority scheduling, a buffer cache, and an extensible inode file system.</p></div>
+          <div><h3>Pintos Operating System</h3><p>OS kernel with thread and file syscalls, strict priority scheduling, a buffer cache, and an extensible inode file system.</p></div>
         </article>
         <article class="project">
-          <div class="num">04</div><div><h3>Sports Pulse</h3><p>Android sports-news app pulling live headlines from numerous RSS feeds across many sports, built with Kotlin, Jetpack Compose, MVVM, Hilt, and Retrofit.</p></div>
+          <div><h3>Sports Pulse</h3><p>Android sports news app pulling live headlines from numerous RSS feeds across many sports, built with Kotlin, Jetpack Compose, MVVM, Hilt, and Retrofit.</p></div>
         </article>
         <article class="project">
-          <div class="num">05</div><div><h3>BropDoX</h3><p>Secure Go file-sharing app letting users store, edit, and share documents under a hybrid RSA + encrypt-then-MAC encryption scheme.</p></div>
+          <div><h3>BropDoX</h3><p>Secure Go file sharing app letting users store, edit, and share documents under a hybrid RSA and encrypt then MAC encryption scheme.</p></div>
         </article>
         <article class="project">
-          <div class="num">06</div><div><h3>GripAAAA</h3><p>ROS2 robot that autonomously detects, navigates to, grasps, and delivers wooden cubes from a source to a home base.</p></div>
+          <div><h3>GripAAAA</h3><p>ROS2 robot that autonomously detects, navigates to, grasps, and delivers wooden cubes from a source to a home base.</p></div>
         </article>
       </div>
     </div>
   </section>
 </main>
+
+<div class="earth" aria-hidden="true">
+  <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+    <g class="spin">
+      <!-- cookie base -->
+      <circle cx="100" cy="100" r="94" fill="#d9a05b"/>
+      <!-- toasted edge shading -->
+      <circle cx="100" cy="100" r="94" fill="none" stroke="#b87e3e" stroke-width="12" opacity=".55"/>
+      <!-- chocolate chips -->
+      <g fill="#4a2c1a">
+        <ellipse cx="70" cy="62" rx="12" ry="10" transform="rotate(-14 70 62)"/>
+        <ellipse cx="128" cy="52" rx="10" ry="8" transform="rotate(18 128 52)"/>
+        <ellipse cx="148" cy="106" rx="11" ry="9" transform="rotate(-8 148 106)"/>
+        <ellipse cx="112" cy="146" rx="12" ry="10" transform="rotate(12 112 146)"/>
+        <ellipse cx="58" cy="128" rx="10" ry="9" transform="rotate(-20 58 128)"/>
+        <ellipse cx="99" cy="97" rx="9" ry="8" transform="rotate(6 99 97)"/>
+      </g>
+      <!-- crumb specks -->
+      <g fill="#b87e3e">
+        <circle cx="88" cy="42" r="2.6"/>
+        <circle cx="150" cy="72" r="2.4"/>
+        <circle cx="132" cy="122" r="2.6"/>
+        <circle cx="76" cy="158" r="2.4"/>
+        <circle cx="44" cy="90" r="2.6"/>
+        <circle cx="104" cy="70" r="2.2"/>
+      </g>
+    </g>
+    <!-- outline on top, doesn't spin -->
+    <circle cx="100" cy="100" r="94" fill="none" stroke="var(--text)" stroke-width="3"/>
+  </svg>
+</div>
 
 <footer>
   <div class="wrap">© 2026 Arunaabha Yadavalli</div>
@@ -447,30 +627,22 @@
 })();
 
 (function(){
-  // Attach 2 rocket boosters per block — left edge (fixed downward thrust)
-  // and right edge (fixed upward thrust) — the opposing pair fires depending
-  // on scroll direction.
-  var blocks = document.querySelectorAll('.exp-item, .project, .bio-bubble, .skill-group');
-  function addBoosters(block){
+  // A single rocket booster pinned to a fixed spot on screen.
+  function makeBooster(){
     var wrap = document.createElement('div');
-    wrap.className = 'boosters';
-    ['edge-left','edge-right'].forEach(function(side){
-      var b = document.createElement('div');
-      b.className = 'booster ' + side;
-      var strut = document.createElement('div');
-      strut.className = 'strut';
-      var flameBottom = document.createElement('div');
-      flameBottom.className = 'flame-bottom';
-      var flameTop = document.createElement('div');
-      flameTop.className = 'flame-top';
-      b.appendChild(strut);
-      b.appendChild(flameBottom);
-      b.appendChild(flameTop);
-      wrap.appendChild(b);
-    });
-    block.appendChild(wrap);
+    wrap.className = 'section-booster';
+    var b = document.createElement('div');
+    b.className = 'booster';
+    var flameBottom = document.createElement('div');
+    flameBottom.className = 'flame-bottom';
+    var flameTop = document.createElement('div');
+    flameTop.className = 'flame-top';
+    b.appendChild(flameBottom);
+    b.appendChild(flameTop);
+    wrap.appendChild(b);
+    return wrap;
   }
-  blocks.forEach(addBoosters);
+  document.body.appendChild(makeBooster());
 
   // Track scroll direction and speed so the correct boosters fire,
   // with flame length AND color proportional to how fast the page is scrolling:
@@ -532,6 +704,172 @@
       dirTicking = true;
     }
   }, {passive:true});
+})();
+
+(function(){
+  // Scroll-hint arrows + scroll-driven orbital flight director.
+  //
+  // Every position along the trajectory is a pure function of scroll position,
+  // so however fast (or erratically) the user scrolls, the rocket is always
+  // exactly where it should be — nothing to fall out of sync or "break".
+  // Scrolling backwards simply retraces the same path in reverse.
+  var earthEl  = document.querySelector('.earth');
+  var booster  = document.querySelector('.booster');
+  var body     = document.body;
+  var RX = 210, RY = 160;     // orbit ellipse radii — clears the cookie easily
+  var ZONE = 420;             // px of scroll over which the transfer plays out
+  var ORBIT_PERIOD = 12000;   // ms per revolution while parked in orbit
+
+  var orbitAngle = 0;         // live angle while circling
+  var lastT = performance.now();
+  var exitAngle = null;       // angle the rocket left orbit from (null = never orbited)
+  var mode = 'cruise';
+  var rafPending = false;
+
+  function planetCy(){
+    var r = earthEl.getBoundingClientRect();
+    return r.top + r.height / 2;
+  }
+  function cruiseY(){ return window.innerHeight * 0.38; }
+  function bottomGap(){
+    return document.documentElement.scrollHeight - (window.scrollY + window.innerHeight);
+  }
+
+  // --- path construction (planet-centred coords) -------------------------
+  // Paths always run ORBIT-side (u=0) -> CRUISE-side (u=1), so progress maps
+  // directly to scroll: u = gap / ZONE.
+  function cubic(p0,p1,p2,p3,t){
+    var m=1-t, a=m*m*m, b=3*m*m*t, c=3*m*t*t, d=t*t*t;
+    return [a*p0[0]+b*p1[0]+c*p2[0]+d*p3[0], a*p0[1]+b*p1[1]+c*p2[1]+d*p3[1]];
+  }
+  function buildPath(endY){
+    var pts = [], N = 90, i, t;
+    var arcFrac = 0;
+    if(exitAngle !== null){
+      // Leaving orbit: continue FORWARD around the ellipse to the right-hand
+      // point (velocity already straight up), then curve onto the flight line.
+      var delta = Math.PI - exitAngle;
+      while(delta <= 0.02) delta += Math.PI * 2;
+      var steps = Math.max(6, Math.round(delta / (Math.PI*2) * 160));
+      for(i = 0; i <= steps; i++){
+        var ang = exitAngle + delta * (i / steps);
+        pts.push([-RX * Math.cos(ang), RY * Math.sin(ang)]);
+      }
+      var h = Math.max(90, Math.abs(endY) * 0.5);
+      for(i = 1; i <= N; i++){
+        t = i / N;
+        pts.push(cubic([RX,0],[RX,-h],[0,endY+h],[0,endY],t));
+      }
+      arcFrac = steps / (steps + N);
+    } else {
+      // First descent: a single spline from the orbit's left-hand point
+      // (where orbital velocity is vertical) up to the cruise station.
+      var h2 = Math.max(90, Math.abs(endY) * 0.5);
+      for(i = 0; i <= N; i++){
+        t = i / N;
+        pts.push(cubic([-RX,0],[-RX,-h2],[0,endY+h2],[0,endY],t));
+      }
+    }
+    // arc-length table so motion is uniform in distance
+    var cum = [0], total = 0;
+    for(i = 1; i < pts.length; i++){
+      total += Math.hypot(pts[i][0]-pts[i-1][0], pts[i][1]-pts[i-1][1]);
+      cum.push(total);
+    }
+    return {pts:pts, cum:cum, len:total, arcFrac:arcFrac};
+  }
+  function samplePath(path, u){
+    u = Math.max(0, Math.min(1, u));
+    var target = u * path.len, lo = 0, hi = path.cum.length - 1;
+    while(lo < hi){ var mid=(lo+hi)>>1; if(path.cum[mid] < target) lo = mid+1; else hi = mid; }
+    var i = Math.max(1, lo);
+    var seg = path.cum[i] - path.cum[i-1];
+    var f = seg > 0 ? (target - path.cum[i-1]) / seg : 0;
+    var p0 = path.pts[i-1], p1 = path.pts[i];
+    var x = p0[0] + (p1[0]-p0[0]) * f, y = p0[1] + (p1[1]-p0[1]) * f;
+    var ang = Math.atan2(p1[1]-p0[1], p1[0]-p0[0]) * 180 / Math.PI;
+    return {x:x, y:y, ang:ang};
+  }
+
+  function place(x, y, deg){
+    booster.style.transform = 'translate(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px) rotate(' + deg.toFixed(1) + 'deg)';
+  }
+
+  function frame(){
+    rafPending = false;
+    if(!earthEl || !booster) return;
+    var now = performance.now(), dt = now - lastT; lastT = now;
+    var gap = bottomGap();
+
+    if(gap >= ZONE){                       // ---- cruising ----
+      if(mode !== 'cruise'){
+        mode = 'cruise';
+        exitAngle = null;                  // next approach is a fresh descent
+        orbitAngle = 0;                    // and it will join at the left point
+        body.classList.remove('orbital');
+        booster.style.transform = '';
+      }
+      return;
+    }
+
+    body.classList.add('orbital');
+    var cy = planetCy();
+    document.documentElement.style.setProperty('--planet-cy', cy + 'px');
+    var endY = cruiseY() - cy;
+    endY = Math.max(-(RY + 900), Math.min(endY, -(RY + 60)));
+
+    if(gap <= 0){                          // ---- parked in orbit ----
+      if(mode !== 'orbit'){
+        mode = 'orbit';
+        // Continue from precisely the point the transfer path ended on:
+        // the ellipse's left-hand point after a fresh descent, or the angle
+        // the rocket departed from if it is returning.
+        orbitAngle = (exitAngle !== null) ? exitAngle : 0;
+      }
+      orbitAngle += (dt / ORBIT_PERIOD) * Math.PI * 2;
+      exitAngle = orbitAngle;              // ready to depart from here
+      var x = -RX * Math.cos(orbitAngle), y = RY * Math.sin(orbitAngle);
+      var tx = RX * Math.sin(orbitAngle), ty = RY * Math.cos(orbitAngle);
+      place(x, y, Math.atan2(ty, tx) * 180 / Math.PI - 90);
+      schedule();                          // keep circling
+      return;
+    }
+
+    // ---- transfer: position is a direct function of scroll ----
+    mode = 'transfer';
+    var u = gap / ZONE;
+    var path = buildPath(endY);
+    var s = samplePath(path, u);
+    // Roll from the orbit's tail-first convention to upright, finishing before
+    // the rocket leaves the arc so the hand-off itself is clean.
+    var roll = 90;
+    if(path.arcFrac > 0){
+      var w = Math.max(0.15, Math.min(path.arcFrac, 0.5));
+      var k = Math.max(0, Math.min(1, u / w));
+      roll = -90 + 180 * k;
+    }
+    place(s.x, s.y, s.ang + roll);
+  }
+  function schedule(){
+    if(!rafPending){ rafPending = true; requestAnimationFrame(frame); }
+  }
+
+  function checkScrolled(){
+    body.classList.toggle('scrolled', window.scrollY > 40);
+    schedule();
+  }
+  window.addEventListener('scroll', checkScrolled, {passive:true});
+  window.addEventListener('resize', checkScrolled, {passive:true});
+  checkScrolled();
+})();
+
+(function(){
+  // Light/dark mode toggle — inverts the palette; flames turn orange in light mode.
+  var btn = document.getElementById('theme-toggle');
+  btn.addEventListener('click', function(){
+    var light = document.body.classList.toggle('light');
+    btn.textContent = light ? '☀' : '☾';
+  });
 })();
 </script>
 </body>
