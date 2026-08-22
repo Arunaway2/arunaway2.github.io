@@ -21,8 +21,16 @@
     --flame-core:rgba(255,255,240,.95);
     --star-color:255,255,255;
     --nav-bg:rgba(3,3,3,.62);
-    --portrait-light:#000000;
-    --portrait-line:#f5f2ec;
+    /* cookie, tuned to the site's cream + amber accent */
+    --dough-lit:#f5e0bd;
+    --dough-mid:#e8c48c;
+    --dough-deep:#c98b4e;
+    --dough-edge:#a76b34;
+    --dough-rim:#c07a38;
+    --chip-lit:#6d4a35;
+    --chip-mid:#43291b;
+    --chip-deep:#241209;
+    --chip-gloss:#f0a05a;
   }
   body.light{
     --bg:#e8e2d5;
@@ -37,8 +45,16 @@
     --flame-core:rgba(255,236,210,.98);
     --star-color:0,0,0;
     --nav-bg:rgba(232,226,213,.62);
-    --portrait-light:#e8e2d5;
-    --portrait-line:#141210;
+    /* cookie, warmed toward the light theme's sunset accents */
+    --dough-lit:#f6dfb4;
+    --dough-mid:#e3b478;
+    --dough-deep:#c98247;
+    --dough-edge:#a35f2c;
+    --dough-rim:#c06a35;
+    --chip-lit:#6b4030;
+    --chip-mid:#432416;
+    --chip-deep:#25100a;
+    --chip-gloss:#c67117;
   }
   *{box-sizing:border-box}
   html{}
@@ -135,12 +151,6 @@
     font-family:'Varela Round',Arial,ui-sans-serif,sans-serif;
     position:relative;
   }
-  .portrait{
-    width:clamp(130px,16vw,190px);
-    margin:0 auto 18px;
-    line-height:0;
-  }
-  .portrait svg{width:100%;height:auto;display:block}
   .bio-name{
     font-family:'Playfair Display',Georgia,'Times New Roman',serif;
     font-style:italic;font-weight:600;
@@ -225,23 +235,26 @@
      Each booster has a flame at BOTH ends (top and bottom) so it can thrust
      in either direction — the correct end fires depending on scroll direction. */
   .section-booster{
-    position:fixed;left:50%;margin-left:540px;top:38%;
+    position:fixed;left:var(--planet-x,calc(50% + 550px));margin-left:-10px;top:38%;
     margin-top:-25px;
     pointer-events:none;z-index:5;
   }
   /* Orbital mode: the wrapper anchors to the planet's live centre and the
      rocket's transform is driven frame-by-frame from the scroll position,
      so the trajectory is always exactly in sync with the user's scrolling. */
-  body.orbital .section-booster{
-    top:var(--planet-cy,50%);
+  /* The wrapper is permanently anchored to the planet's frame and the rocket's
+     transform is computed in JS every frame — including its idle drift — so
+     there is never a hand-off between CSS and JS to jump at. */
+  body.jsflight .section-booster{
+    top:var(--planet-cy,38%);
   }
-  body.orbital .booster{
+  body.jsflight .booster{
     animation:none !important;
   }
   /* The cookie planet — a normal in-flow element on the flight line. */
   .earth{
-    width:170px;height:170px;
-    margin:130px 0 30px calc(50% + 465px);
+    width:var(--cookie-d,170px);height:var(--cookie-d,170px);
+    margin:130px 0 30px var(--planet-ml,calc(50% + 465px));
     pointer-events:none;
     line-height:0;
   }
@@ -257,13 +270,20 @@
   .booster{
     position:relative;
     width:20px;height:50px;
-    background:linear-gradient(180deg,
-      #9a968e 0%, #9a968e 12%,
-      #c0392b 12%, #c0392b 20%,
-      #9a968e 20%, #9a968e 80%,
-      #c0392b 80%, #c0392b 88%,
-      #9a968e 88%, #9a968e 100%);
-    border:1px solid rgba(0,0,0,.5);
+    background:
+      /* soft vertical shading so the hull reads as a rounded cylinder */
+      linear-gradient(90deg,
+        rgba(0,0,0,.28) 0%, rgba(0,0,0,.06) 22%,
+        rgba(255,255,255,.22) 46%, rgba(0,0,0,.06) 74%,
+        rgba(0,0,0,.3) 100%),
+      /* stripe bands, blended rather than hard-edged */
+      linear-gradient(180deg,
+        #b9b4ab 0%, #a8a39a 9%,
+        #c0392b 13%, #a8342a 19%,
+        #a8a39a 23%, #b9b4ab 50%, #a8a39a 77%,
+        #a8342a 81%, #c0392b 87%,
+        #a8a39a 91%, #b9b4ab 100%);
+    border-radius:5px 5px 4px 4px;
     /* Idle: drifts and tips lazily like it's weightless.
        Starts and ends at vertical so it eases out of the upright
        scrolling pose instead of snapping to an angle. */
@@ -350,6 +370,20 @@
     animation:wobble .6s ease-in-out infinite alternate,
               sprite-swap .5s steps(1) infinite;
   }
+  /* While flying tail-first (the orbit attitude, before the exit flip) the
+     rocket's nose points AGAINST its direction of travel, so the trailing
+     engine is the opposite one. Swap which end burns. */
+  body.scroll-down .booster.retro .flame-top,
+  body.scroll-up   .booster.retro .flame-bottom{
+    opacity:0;
+    animation:none;
+  }
+  body.scroll-down .booster.retro .flame-bottom,
+  body.scroll-up   .booster.retro .flame-top{
+    opacity:1;
+    animation:wobble .6s ease-in-out infinite alternate,
+              sprite-swap .5s steps(1) infinite;
+  }
 
   @media(max-width:700px){
     .nav-contact{gap:14px}
@@ -378,70 +412,11 @@
   <section class="hero">
     <div class="wrap">
       <div class="label"></div>
-      <div class="portrait">
-        <svg viewBox="0 0 200 240" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Minimal anime-style line-art portrait">
-          <!-- face: wide and short, anime proportions, small tapered chin -->
-          <path d="M100 58 C131 58 149 75 149 103 L149 122
-                   C149 143 139 159 123 169 C115 174 107 177 100 177
-                   C93 177 85 174 77 169 C61 159 51 143 51 122
-                   L51 103 C51 75 69 58 100 58 Z"
-                fill="var(--portrait-light)" stroke="var(--portrait-line)" stroke-width="2"/>
-          <!-- ears -->
-          <path d="M51 116 Q43 118 45 128 Q47 136 52 136" stroke="var(--portrait-line)"
-                stroke-width="2" fill="none" stroke-linecap="round"/>
-          <path d="M149 116 Q157 118 155 128 Q153 136 148 136" stroke="var(--portrait-line)"
-                stroke-width="2" fill="none" stroke-linecap="round"/>
-          <!-- hair: short spiky anime mass with jagged fringe -->
-          <path d="M54 112
-                   C48 100 45 88 48 74
-                   L36 66 L52 63
-                   L43 46 L62 51
-                   L58 28 L77 42
-                   L79 20 L93 37
-                   L102 18 L112 36
-                   L122 22 L126 41
-                   L141 30 L138 50
-                   L157 47 L148 62
-                   L164 67 L150 76
-                   C154 89 152 101 146 112
-                   L137 103 L131 89 L124 106
-                   L116 86 L109 104
-                   L100 84 L92 103
-                   L84 86 L77 106
-                   L69 90 L62 107 Z"
-                fill="var(--portrait-line)"/>
-          <!-- stray strands -->
-          <path d="M88 94 Q92 103 87 110" stroke="var(--portrait-line)" stroke-width="2"
-                fill="none" stroke-linecap="round"/>
-          <path d="M113 94 Q116 102 112 109" stroke="var(--portrait-line)" stroke-width="2"
-                fill="none" stroke-linecap="round"/>
-          <!-- brows -->
-          <path d="M70 117 Q80 113 90 116" stroke="var(--portrait-line)" stroke-width="2.2"
-                fill="none" stroke-linecap="round"/>
-          <path d="M110 116 Q120 113 130 117" stroke="var(--portrait-line)" stroke-width="2.2"
-                fill="none" stroke-linecap="round"/>
-          <!-- eyes: larger anime eyes, calm lids, big pupils with a light spark -->
-          <path d="M68 128 Q80 121 92 128" stroke="var(--portrait-line)" stroke-width="2.2"
-                fill="none" stroke-linecap="round"/>
-          <path d="M108 128 Q120 121 132 128" stroke="var(--portrait-line)" stroke-width="2.2"
-                fill="none" stroke-linecap="round"/>
-          <circle cx="80" cy="133" r="4.6" fill="var(--portrait-line)"/>
-          <circle cx="120" cy="133" r="4.6" fill="var(--portrait-line)"/>
-          <circle cx="81.6" cy="131.4" r="1.3" fill="var(--portrait-light)"/>
-          <circle cx="121.6" cy="131.4" r="1.3" fill="var(--portrait-light)"/>
-          <!-- nose: tiny anime tick -->
-          <path d="M100 143 Q101 149 104 151" stroke="var(--portrait-line)"
-                stroke-width="1.8" fill="none" stroke-linecap="round"/>
-          <!-- mouth: small calm smile -->
-          <path d="M93 161 Q100 166 107 161" stroke="var(--portrait-line)" stroke-width="2"
-                fill="none" stroke-linecap="round"/>
-        </svg>
-      </div>
       <div class="bio-name">Arunaabha Yadavalli</div>
       <div class="bio-tagline">hungry, foolish, and slightly delusional</div>
       <div class="bio-bubble">
         <p class="bio-body">
-          Welcome! I'm a creative who codes. I love to learn new and old technologies to build cool stuff that drives tangible change in one of my many interests, like robotics, backend systems, AI/ML, cooking, badminton...and so many left out. I approach any project with obsession and undivided attention. I am constantly looking for opportunities to learn and level up at this craft, and I never say no to grab some coffee, mochas are my favorite. Currently I am figuring out GPU kernel development for Machine Learning acceleration, pls send me resources you know if you wanna help me!
+          Welcome! For those who are in a dash, <strong>here's the gist:</strong> I'm a creative who codes. It all started when I did code monkey in zero period. Since then I've come to love learning new technologies and building cool stuff that drives tangible change. I approach any project with obsession and undivided attention. I'm constantly looking for opportunities to learn and level up, and I never say no to grab some coffee, mochas are my favorite. Currently I am interested in GPU kernel development for Machine Learning acceleration, pls send me resources you know if you wanna help me!
         </p>
       </div>
     </div>
@@ -578,32 +553,82 @@
 
 <div class="earth" aria-hidden="true">
   <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="doughGrad" cx="38%" cy="32%" r="78%">
+        <stop offset="0%"  stop-color="var(--dough-lit)"/>
+        <stop offset="52%" stop-color="var(--dough-mid)"/>
+        <stop offset="88%" stop-color="var(--dough-deep)"/>
+        <stop offset="100%" stop-color="var(--dough-edge)"/>
+      </radialGradient>
+      <radialGradient id="chipGrad" cx="34%" cy="28%" r="80%">
+        <stop offset="0%"  stop-color="var(--chip-lit)"/>
+        <stop offset="60%" stop-color="var(--chip-mid)"/>
+        <stop offset="100%" stop-color="var(--chip-deep)"/>
+      </radialGradient>
+      <clipPath id="cookieClip">
+        <path d="M100 6 C124 4 141 16 156 26 C173 37 192 48 194 72
+                 C196 95 186 109 187 128 C188 150 176 166 158 178
+                 C139 191 121 189 100 192 C78 195 58 190 42 177
+                 C25 163 18 146 13 126 C8 106 4 88 10 68
+                 C16 47 32 33 51 22 C68 12 82 8 100 6 Z"/>
+      </clipPath>
+    </defs>
     <g class="spin">
-      <!-- cookie base -->
-      <circle cx="100" cy="100" r="94" fill="#d9a05b"/>
-      <!-- toasted edge shading -->
-      <circle cx="100" cy="100" r="94" fill="none" stroke="#b87e3e" stroke-width="12" opacity=".55"/>
-      <!-- chocolate chips -->
-      <g fill="#4a2c1a">
-        <ellipse cx="70" cy="62" rx="12" ry="10" transform="rotate(-14 70 62)"/>
-        <ellipse cx="128" cy="52" rx="10" ry="8" transform="rotate(18 128 52)"/>
-        <ellipse cx="148" cy="106" rx="11" ry="9" transform="rotate(-8 148 106)"/>
-        <ellipse cx="112" cy="146" rx="12" ry="10" transform="rotate(12 112 146)"/>
-        <ellipse cx="58" cy="128" rx="10" ry="9" transform="rotate(-20 58 128)"/>
-        <ellipse cx="99" cy="97" rx="9" ry="8" transform="rotate(6 99 97)"/>
-      </g>
-      <!-- crumb specks -->
-      <g fill="#b87e3e">
-        <circle cx="88" cy="42" r="2.6"/>
-        <circle cx="150" cy="72" r="2.4"/>
-        <circle cx="132" cy="122" r="2.6"/>
-        <circle cx="76" cy="158" r="2.4"/>
-        <circle cx="44" cy="90" r="2.6"/>
-        <circle cx="104" cy="70" r="2.2"/>
+      <!-- irregular, hand-drawn cookie silhouette with soft baked shading -->
+      <path d="M100 6 C124 4 141 16 156 26 C173 37 192 48 194 72
+               C196 95 186 109 187 128 C188 150 176 166 158 178
+               C139 191 121 189 100 192 C78 195 58 190 42 177
+               C25 163 18 146 13 126 C8 106 4 88 10 68
+               C16 47 32 33 51 22 C68 12 82 8 100 6 Z"
+            fill="url(#doughGrad)"/>
+      <g clip-path="url(#cookieClip)">
+        <!-- toasted rim, soft and uneven -->
+        <path d="M100 6 C124 4 141 16 156 26 C173 37 192 48 194 72
+                 C196 95 186 109 187 128 C188 150 176 166 158 178
+                 C139 191 121 189 100 192 C78 195 58 190 42 177
+                 C25 163 18 146 13 126 C8 106 4 88 10 68
+                 C16 47 32 33 51 22 C68 12 82 8 100 6 Z"
+              fill="none" stroke="var(--dough-rim)" stroke-width="16" opacity=".5"/>
+        <!-- warm highlight where the light falls -->
+        <ellipse cx="72" cy="64" rx="46" ry="34" fill="var(--dough-lit)" opacity=".35"
+                 transform="rotate(-18 72 64)"/>
+        <!-- craggy surface cracks -->
+        <g stroke="var(--dough-edge)" stroke-width="2.4" fill="none" stroke-linecap="round" opacity=".6">
+          <path d="M46 96 Q62 88 74 98 Q86 108 102 100"/>
+          <path d="M118 138 Q130 128 148 132"/>
+          <path d="M84 44 Q92 56 84 66"/>
+        </g>
+        <!-- chocolate chips: rounded, uneven, with a soft top highlight -->
+        <g>
+          <path d="M58 60 Q72 50 80 62 Q86 74 72 80 Q58 84 54 72 Q52 64 58 60 Z" fill="url(#chipGrad)"/>
+          <path d="M60 62 Q68 56 74 62" stroke="var(--chip-gloss)" stroke-width="2.4" fill="none" opacity=".55" stroke-linecap="round"/>
+
+          <path d="M120 48 Q134 42 140 54 Q144 66 130 70 Q118 72 115 61 Q114 52 120 48 Z" fill="url(#chipGrad)"/>
+          <path d="M122 51 Q130 46 136 52" stroke="var(--chip-gloss)" stroke-width="2.2" fill="none" opacity=".55" stroke-linecap="round"/>
+
+          <path d="M140 104 Q154 100 158 112 Q160 124 147 128 Q135 128 133 116 Q133 107 140 104 Z" fill="url(#chipGrad)"/>
+          <path d="M142 107 Q150 103 155 109" stroke="var(--chip-gloss)" stroke-width="2.2" fill="none" opacity=".55" stroke-linecap="round"/>
+
+          <path d="M92 132 Q108 126 114 139 Q118 152 103 156 Q90 156 87 144 Q86 136 92 132 Z" fill="url(#chipGrad)"/>
+          <path d="M95 135 Q103 130 109 136" stroke="var(--chip-gloss)" stroke-width="2.4" fill="none" opacity=".55" stroke-linecap="round"/>
+
+          <path d="M46 122 Q58 116 64 127 Q68 138 56 143 Q45 144 42 133 Q41 126 46 122 Z" fill="url(#chipGrad)"/>
+          <path d="M48 125 Q55 121 60 126" stroke="var(--chip-gloss)" stroke-width="2.2" fill="none" opacity=".55" stroke-linecap="round"/>
+
+          <path d="M99 88 Q110 84 114 94 Q116 104 105 107 Q95 107 93 98 Q93 91 99 88 Z" fill="url(#chipGrad)"/>
+          <path d="M101 91 Q107 88 111 92" stroke="var(--chip-gloss)" stroke-width="2" fill="none" opacity=".55" stroke-linecap="round"/>
+        </g>
+        <!-- crumb flecks -->
+        <g fill="var(--dough-edge)" opacity=".55">
+          <circle cx="88" cy="30" r="2.8"/>
+          <circle cx="160" cy="84" r="2.4"/>
+          <circle cx="126" cy="118" r="2.6"/>
+          <circle cx="70" cy="160" r="2.6"/>
+          <circle cx="30" cy="100" r="2.4"/>
+          <circle cx="112" cy="72" r="2.2"/>
+        </g>
       </g>
     </g>
-    <!-- outline on top, doesn't spin -->
-    <circle cx="100" cy="100" r="94" fill="none" stroke="var(--text)" stroke-width="3"/>
   </svg>
 </div>
 
@@ -716,15 +741,37 @@
   var earthEl  = document.querySelector('.earth');
   var booster  = document.querySelector('.booster');
   var body     = document.body;
-  var RX = 210, RY = 160;     // orbit ellipse radii — clears the cookie easily
-  var ZONE = 420;             // px of scroll over which the transfer plays out
+  var RX = 150, RY = 190;     // orbit radii — recomputed by layout() to fit
+  var COOKIE_R = 85;
+  var ZONE = 230;             // px of scroll over which the transfer plays out
   var ORBIT_PERIOD = 12000;   // ms per revolution while parked in orbit
 
+  var driftAmt = 1;           // 1 = idle drift, 0 = locked straight under thrust
   var orbitAngle = 0;         // live angle while circling
   var lastT = performance.now();
   var exitAngle = null;       // angle the rocket left orbit from (null = never orbited)
   var mode = 'cruise';
   var rafPending = false;
+
+  // Fit the whole orbital system into the gutter to the right of the text,
+  // so the rocket never crosses the content column at any window width.
+  function layout(){
+    var wrap = document.querySelector('main .wrap');
+    if(!wrap) return;
+    var textRight = wrap.getBoundingClientRect().right;
+    var vw = document.documentElement.clientWidth;
+    var leftBound  = textRight + 20;   // keep clear of the words
+    var rightBound = vw - 12;          // and of the window edge
+    var span = Math.max(120, rightBound - leftBound);
+    var planetX = leftBound + span / 2;
+    RX = Math.max(78, span / 2 - 12);          // rocket half-width allowance
+    RY = Math.min(210, Math.max(RX * 1.45, 130));
+    COOKIE_R = Math.max(26, Math.min(76, RX - 46)); // keep the orbit clear of it
+    var root = document.documentElement.style;
+    root.setProperty('--planet-x', planetX.toFixed(1) + 'px');
+    root.setProperty('--planet-ml', (planetX - COOKIE_R).toFixed(1) + 'px');
+    root.setProperty('--cookie-d', (COOKIE_R * 2).toFixed(1) + 'px');
+  }
 
   function planetCy(){
     var r = earthEl.getBoundingClientRect();
@@ -755,7 +802,9 @@
         var ang = exitAngle + delta * (i / steps);
         pts.push([-RX * Math.cos(ang), RY * Math.sin(ang)]);
       }
-      var h = Math.max(90, Math.abs(endY) * 0.5);
+      // Control handles scale with the orbit so the curve always bows well
+      // clear of the planet, even when the cruise station is close by.
+      var h = Math.max(RY * 0.95, Math.abs(endY) * 0.55);
       for(i = 1; i <= N; i++){
         t = i / N;
         pts.push(cubic([RX,0],[RX,-h],[0,endY+h],[0,endY],t));
@@ -764,7 +813,7 @@
     } else {
       // First descent: a single spline from the orbit's left-hand point
       // (where orbital velocity is vertical) up to the cruise station.
-      var h2 = Math.max(90, Math.abs(endY) * 0.5);
+      var h2 = Math.max(RY * 0.95, Math.abs(endY) * 0.55);
       for(i = 0; i <= N; i++){
         t = i / N;
         pts.push(cubic([-RX,0],[-RX,-h2],[0,endY+h2],[0,endY],t));
@@ -795,28 +844,48 @@
     booster.style.transform = 'translate(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px) rotate(' + deg.toFixed(1) + 'deg)';
   }
 
+  // Gentle idle drift, computed here so it can be faded out continuously
+  // instead of being switched off by a class change.
+  function drift(now, amt){
+    if(amt <= 0) return {x:0, y:0, r:0};
+    return {
+      x: 4.5 * Math.sin(now / 2600) * amt,
+      y: 4.0 * Math.sin(now / 3400) * amt,
+      r: 7.0 * Math.sin(now / 3000) * amt
+    };
+  }
+
   function frame(){
     rafPending = false;
     if(!earthEl || !booster) return;
     var now = performance.now(), dt = now - lastT; lastT = now;
     var gap = bottomGap();
 
+    // Under power (i.e. while the user is scrolling) the rocket holds a rigid
+    // vertical attitude; the lazy drift only returns once it coasts.
+    var thrusting = body.classList.contains('scroll-down') ||
+                    body.classList.contains('scroll-up');
+    driftAmt += ((thrusting ? 0 : 1) - driftAmt) * Math.min(1, dt / 260);
+
+    // The rocket is ALWAYS positioned in the planet's frame. Far from the
+    // planet this still resolves to the cruise station exactly, so crossing
+    // into the transfer zone changes nothing about where it is drawn.
+    var cy = planetCy();
+    document.documentElement.style.setProperty('--planet-cy', cy + 'px');
+    var endY = cruiseY() - cy;             // no clamping: u=1 IS the cruise spot
+
     if(gap >= ZONE){                       // ---- cruising ----
       if(mode !== 'cruise'){
         mode = 'cruise';
         exitAngle = null;                  // next approach is a fresh descent
         orbitAngle = 0;                    // and it will join at the left point
-        body.classList.remove('orbital');
-        booster.style.transform = '';
       }
+      booster.classList.remove('retro');
+      var f = drift(now, driftAmt);
+      place(f.x, endY + f.y, f.r);
+      schedule();
       return;
     }
-
-    body.classList.add('orbital');
-    var cy = planetCy();
-    document.documentElement.style.setProperty('--planet-cy', cy + 'px');
-    var endY = cruiseY() - cy;
-    endY = Math.max(-(RY + 900), Math.min(endY, -(RY + 60)));
 
     if(gap <= 0){                          // ---- parked in orbit ----
       if(mode !== 'orbit'){
@@ -828,6 +897,7 @@
       }
       orbitAngle += (dt / ORBIT_PERIOD) * Math.PI * 2;
       exitAngle = orbitAngle;              // ready to depart from here
+      booster.classList.add('retro');     // orbit attitude is tail-first
       var x = -RX * Math.cos(orbitAngle), y = RY * Math.sin(orbitAngle);
       var tx = RX * Math.sin(orbitAngle), ty = RY * Math.cos(orbitAngle);
       place(x, y, Math.atan2(ty, tx) * 180 / Math.PI - 90);
@@ -840,15 +910,26 @@
     var u = gap / ZONE;
     var path = buildPath(endY);
     var s = samplePath(path, u);
-    // Roll from the orbit's tail-first convention to upright, finishing before
-    // the rocket leaves the arc so the hand-off itself is clean.
+    // Hold the orbit's tail-first attitude for the whole time the rocket is
+    // still going around the planet. Only once it has left the ellipse and is
+    // climbing away does it roll 180 to fly nose-first back to cruise.
     var roll = 90;
     if(path.arcFrac > 0){
-      var w = Math.max(0.15, Math.min(path.arcFrac, 0.5));
-      var k = Math.max(0, Math.min(1, u / w));
-      roll = -90 + 180 * k;
+      if(u <= path.arcFrac){
+        roll = -90;                       // still in orbit: no flip
+      } else {
+        var w = Math.max(0.12, (1 - path.arcFrac) * 0.45);
+        var k = Math.max(0, Math.min(1, (u - path.arcFrac) / w));
+        roll = -90 + 180 * k;
+      }
     }
-    place(s.x, s.y, s.ang + roll);
+    // Idle drift fades in over the last stretch before cruise, so the two
+    // behaviours blend into each other rather than switching over.
+    var amt = Math.max(0, (u - 0.75) / 0.25);
+    var f2 = drift(now, amt * amt * driftAmt);
+    booster.classList.toggle('retro', roll < 0);
+    place(s.x + f2.x, s.y + f2.y, s.ang + roll + f2.r);
+    schedule();
   }
   function schedule(){
     if(!rafPending){ rafPending = true; requestAnimationFrame(frame); }
@@ -858,8 +939,10 @@
     body.classList.toggle('scrolled', window.scrollY > 40);
     schedule();
   }
+  body.classList.add('jsflight');
   window.addEventListener('scroll', checkScrolled, {passive:true});
-  window.addEventListener('resize', checkScrolled, {passive:true});
+  window.addEventListener('resize', function(){ layout(); checkScrolled(); }, {passive:true});
+  layout();
   checkScrolled();
 })();
 
