@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About — Arunaabha Yadavalli</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Varela+Round&family=Playfair+Display:ital,wght@1,600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#000000;
+    --panel:rgba(12,12,12,.76);
+    --line:rgba(255,255,255,.2);
+    --text:#f5f2ec;
+    --muted:#bdb9b1;
+    --accent:#f0a05a;
+    --flame-light:#8ecbff;
+    --flame-mid:#1e8cff;
+    --flame-deep:#0a5fd6;
+    --flame-core:rgba(255,255,240,.95);
+    --star-color:255,255,255;
+    --nav-bg:rgba(3,3,3,.62);
+    /* cookie, tuned to the site's cream + amber accent */
+    --dough-lit:#f5e0bd;
+    --dough-mid:#e8c48c;
+    --dough-deep:#c98b4e;
+    --dough-edge:#a76b34;
+    --dough-rim:#c07a38;
+    --chip-lit:#6d4a35;
+    --chip-mid:#43291b;
+    --chip-deep:#241209;
+    --chip-gloss:#f0a05a;
+  }
+  body.light{
+    --bg:#e8e2d5;
+    --panel:rgba(255,255,255,.76);
+    --line:rgba(0,0,0,.2);
+    --text:#141210;
+    --muted:#4a4740;
+    --accent:#c67117;
+    --flame-light:#ffb347;
+    --flame-mid:#ff5e78;
+    --flame-deep:#d6244f;
+    --flame-core:rgba(255,236,210,.98);
+    --star-color:0,0,0;
+    --nav-bg:rgba(232,226,213,.62);
+    /* cookie, warmed toward the light theme's sunset accents */
+    --dough-lit:#f6dfb4;
+    --dough-mid:#e3b478;
+    --dough-deep:#c98247;
+    --dough-edge:#a35f2c;
+    --dough-rim:#c06a35;
+    --chip-lit:#6b4030;
+    --chip-mid:#432416;
+    --chip-deep:#25100a;
+    --chip-gloss:#c67117;
+  }
+  *{box-sizing:border-box}
+  html{}
+  body{
+    margin:0;background:var(--bg);color:var(--text);
+    font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    overflow-x:hidden;
+    transition:background-color .35s ease,color .35s ease;
+  }
+  .stars,.stars:before,.stars:after{
+    position:fixed;inset:0;content:"";pointer-events:none;z-index:-4;
+    background-image:
+      radial-gradient(circle,rgba(var(--star-color),1) 0 1.2px,transparent 1.7px),
+      radial-gradient(circle,rgba(var(--star-color),.8) 0 1.1px,transparent 1.6px),
+      radial-gradient(circle,rgba(var(--star-color),.55) 0 1px,transparent 1.4px);
+    background-size:157px 181px,113px 229px,89px 149px;
+    background-position:20px 30px,64px 142px,11px 97px;
+    opacity:.85;
+    transform:translateY(calc(var(--star-shift,0px) * -.05));
+  }
+  .stars:before{
+    background-image:
+      radial-gradient(circle,rgba(var(--star-color),.95) 0 1.4px,transparent 1.8px),
+      radial-gradient(circle,rgba(var(--star-color),.65) 0 1.1px,transparent 1.5px),
+      radial-gradient(circle,rgba(240,160,90,.75) 0 1.1px,transparent 1.5px);
+    background-size:241px 197px,173px 263px,131px 211px;
+    transform:translate(41px,calc(73px + var(--star-shift,0px) * -.1));opacity:.55
+  }
+  .stars:after{
+    background-image:
+      radial-gradient(circle,rgba(var(--star-color),.85) 0 1.1px,transparent 1.5px),
+      radial-gradient(circle,rgba(var(--star-color),.55) 0 1.4px,transparent 1.8px),
+      radial-gradient(circle,rgba(var(--star-color),1) 0 1.7px,transparent 2.1px);
+    background-size:97px 233px,193px 149px,307px 271px;
+    transform:translate(-83px,calc(31px + var(--star-shift,0px) * -.16));opacity:.4
+  }
+
+  .wrap{width:min(1050px,calc(100% - 40px));margin:auto}
+  nav{
+    position:fixed;top:0;left:0;right:0;z-index:30;
+    background:transparent;
+    pointer-events:none;
+  }
+  .nav{
+    height:68px;display:flex;align-items:center;justify-content:center;
+  }
+
+  .nav-contact{display:flex;align-items:center;gap:18px;pointer-events:auto}
+  .nav-contact a{
+    position:relative;
+    color:var(--text);font-size:.85rem;font-weight:800;
+    letter-spacing:.1em;text-transform:uppercase;
+    text-decoration:none;
+    white-space:nowrap;opacity:1;
+    transition:color .25s ease,opacity .25s ease;
+    padding-bottom:3px;
+  }
+  .nav-contact a::after{
+    content:"";position:absolute;left:0;bottom:0;width:100%;height:1px;
+    background:var(--accent);
+    transform:scaleX(0);transform-origin:left;
+    transition:transform .3s ease;
+  }
+  .nav-contact a:hover{color:var(--accent);opacity:1}
+  .nav-contact a:hover::after{transform:scaleX(1)}
+  #theme-toggle{
+    background:transparent;
+    border:none;
+    color:var(--text);
+    width:32px;height:32px;
+    font-size:1.2rem;line-height:1;
+    cursor:pointer;
+    display:grid;place-items:center;
+    padding:0;
+  }
+  #theme-toggle:hover{color:var(--accent)}
+  body, nav, .stars, .stars:before, .stars:after{
+    transition:background-color .35s ease,color .35s ease;
+  }
+
+
+  main{position:relative;z-index:5}
+  .about{
+    min-height:100vh;
+    display:flex;flex-direction:column;justify-content:center;
+    padding:140px 0 100px;
+  }
+  .about-name{
+    font-family:'Playfair Display',Georgia,'Times New Roman',serif;
+    font-style:italic;font-weight:600;
+    color:var(--text);font-size:clamp(2.2rem,5vw,3.4rem);
+    margin:0 0 34px;line-height:1.1;
+  }
+  .about-body{
+    font-family:'Varela Round',Arial,ui-sans-serif,sans-serif;
+    color:var(--muted);
+    font-size:clamp(1.15rem,2.4vw,1.55rem);
+    line-height:1.75;
+    max-width:820px;margin:0;
+  }
+  .back-link{
+    display:inline-block;margin-top:56px;
+    color:var(--muted);font-size:.85rem;font-weight:700;
+    letter-spacing:.1em;text-transform:uppercase;text-decoration:none;
+  }
+  .back-link:hover{color:var(--accent)}
+  @media(max-width:700px){
+    .nav-contact{gap:14px}
+    .wrap{width:min(100% - 28px,1050px)}
+  }
+</style>
+</head>
+<body>
+<div class="stars"></div>
+<nav>
+  <div class="wrap nav">
+    <div class="nav-contact">
+      <a href="index.html">Home</a>
+      <a href="mailto:arunaway@berkeley.edu">Email</a>
+      <a href="https://linkedin.com/in/arunaabhay" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="https://github.com/Arunaway2" target="_blank" rel="noopener">GitHub</a>
+      <button id="theme-toggle" aria-label="Toggle light/dark mode" title="Toggle light/dark mode">☾</button>
+    </div>
+  </div>
+</nav>
+
+<main>
+  <section class="about">
+    <div class="wrap">
+      <h1 class="about-name">About me</h1>
+      <p class="about-body">
+        My first introduction to programming was with Code Monkey, coming up with scripts to make the monkey eat its bananas in 6th grade.
+      </p>
+      <a class="back-link" href="index.html">&larr; Back</a>
+    </div>
+  </section>
+</main>
+
+<script>
+(function(){
+  var btn = document.getElementById('theme-toggle');
+  function apply(light){
+    document.body.classList.toggle('light', light);
+    btn.textContent = light ? '\u2600' : '\u263E';
+    try{ localStorage.setItem('theme', light ? 'light' : 'dark'); }catch(e){}
+  }
+  var saved = null;
+  try{ saved = localStorage.getItem('theme'); }catch(e){}
+  apply(saved === 'light');
+  btn.addEventListener('click', function(){
+    apply(!document.body.classList.contains('light'));
+  });
+})();
+</script>
+</body>
+</html>
